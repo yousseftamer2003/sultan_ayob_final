@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "601824604740",
+    "project_id": "food2go-7c5b1",
+    "storage_bucket": "food2go-7c5b1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:601824604740:android:d9f70a4e19b2dbc07e8211",
+        "android_client_info": {
+          "package_name": "com.app.sultan"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBIrXOUeJmdqJF-0u356DqTcY4ZFdgaKag"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
