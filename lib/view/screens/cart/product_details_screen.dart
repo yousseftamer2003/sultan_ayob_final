@@ -4,6 +4,7 @@ import 'package:food2go_app/constants/colors.dart';
 import 'package:food2go_app/controllers/Auth/login_provider.dart';
 import 'package:food2go_app/controllers/product_provider.dart';
 import 'package:food2go_app/models/categories/product_model.dart';
+import 'package:food2go_app/view/screens/Auth/login_screen.dart';
 import 'package:food2go_app/view/screens/cart/widgets/addon_selection_widget.dart';
 import 'package:food2go_app/view/screens/cart/widgets/extras_bottom_sheet.dart';
 import 'package:food2go_app/view/widgets/show_top_snackbar.dart';
@@ -418,12 +419,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                 return;
                               }
                               if (loginProvider.token == null) {
-                                showTopSnackBar(
-                                    context,
-                                    'You have to login first',
-                                    Icons.warning_outlined,
-                                    maincolor,
-                                    const Duration(seconds: 3));
+                                Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(builder: (ctx)=> const LoginScreen()),
+                                );
                                 return;
                               }
                               Product selectedProduct = widget.product!;
@@ -456,15 +454,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                     actions: [
                                       TextButton(
                                         onPressed: () {
-                                          Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  const TabsScreen(
-                                                initialIndex: 0,
-                                              ),
-                                            ),
-                                          );
+                                          Navigator.of(context).pop();
+                                          Navigator.of(context).pop();
                                         },
                                         child: const Text('Continue',
                                             style: TextStyle(color: maincolor)),

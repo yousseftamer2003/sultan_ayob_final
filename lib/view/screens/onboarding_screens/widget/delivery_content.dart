@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:food2go_app/constants/colors.dart';
 import 'package:food2go_app/controllers/address/get_address_provider.dart';
+import 'package:food2go_app/view/screens/tabs_screens/screens/profile_screen/add_address_screen.dart';
 import 'package:provider/provider.dart';
 
 class DeliveryContent extends StatefulWidget {
@@ -20,7 +21,8 @@ class _DeliveryContentState extends State<DeliveryContent> {
         return const Center(child: CircularProgressIndicator(color: maincolor,));
        }else{
          return Column(
-      children: List.generate(addressProvider.addresses.length, 
+      children: [
+    ...List.generate(addressProvider.addresses.length, 
       (index) {
         final address = addressProvider.addresses[index];
         return _buildAddressCard(address.zone.zone,address.address, index == selectedAddress,
@@ -35,7 +37,20 @@ class _DeliveryContentState extends State<DeliveryContent> {
           });
         });
       },
-      )
+      ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          TextButton(
+              onPressed: (){
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => const AddAddressScreen(),)
+                );
+              }, 
+              child: const Text('+ Add new Address',style: TextStyle(color: maincolor),)),
+        ],
+      ),
+      ]
     );
        }
       },
@@ -71,15 +86,15 @@ Widget _buildAddressCard(String title, String subTitle,bool isSelected,{Function
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(fontWeight: FontWeight.bold,color: isSelected? Colors.white : Colors.black),
                   ),
                   const SizedBox(height: 5),
                   Text(
                     subTitle,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: Colors.black.withOpacity(0.7)),
-                  ),
+                    style: TextStyle(color: isSelected? Colors.white : Colors.black.withOpacity(0.7)),
+                  ), 
                 ],
               ),
             ),

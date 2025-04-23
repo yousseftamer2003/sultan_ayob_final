@@ -430,12 +430,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   Widget _buildPlaceOrderButton(BuildContext context) {
     final imageServices = Provider.of<ImageServices>(context, listen: false);
 
-    String formatTimeOfDay(TimeOfDay time) {
-      final int hour = time.hour;
-      final int minute = time.minute;
+    String formatTimeWithSeconds() {
+  final now = DateTime.now();
+  return '${now.hour.toString().padLeft(2, '0')}:'
+         '${now.minute.toString().padLeft(2, '0')}:'
+         '${now.second.toString().padLeft(2, '0')}';
+}
 
-      return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
-    }
 
     return ElevatedButton(
       onPressed: () async {
@@ -518,7 +519,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               : '';
 
           // Format delivery time
-          String deliveryTime = formatTimeOfDay(TimeOfDay.now());
+          String deliveryTime = formatTimeWithSeconds();
               
 
           await Provider.of<ProductProvider>(context, listen: false).postCart(

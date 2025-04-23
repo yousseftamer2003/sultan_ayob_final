@@ -105,7 +105,7 @@ class _CodeVerificationScreenState extends State<CodeVerificationScreen> {
         children: [
           Positioned.fill(
             child: Image.asset(
-              'assets/images/burger1.png',
+              'assets/images/Frame.png',
               fit: BoxFit.cover,
             ),
           ),
@@ -115,7 +115,7 @@ class _CodeVerificationScreenState extends State<CodeVerificationScreen> {
             right: 0,
             child: const Center(
               child: Text(
-                'Food2go',
+                'Elsultan Ayub',
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,

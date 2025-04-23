@@ -46,22 +46,28 @@ class AddressProvider with ChangeNotifier {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
 
-        _addresses = (data['addresses'] as List)
-            .map((addressJson) => Address.fromJson(addressJson))
+        _addresses = (data['addresses'] ?? [])
+            .map<Address>((addressJson) => Address.fromJson(addressJson))
             .toList();
 
-        _zones = (data['zones'] as List)
-            .map((zoneJson) => Zone.fromJson(zoneJson))
+        _zones = (data['zones'] ?? [])
+            .map<Zone>((zoneJson) => Zone.fromJson(zoneJson))
             .toList();
 
-        _branchStarters = (data['branches'] as List)
-            .map((branchStarterJson) => BranchStarter.fromJson(branchStarterJson))
+        _branchStarters = (data['branches'] ?? [])
+            .map<BranchStarter>(
+                (branchJson) => BranchStarter.fromJson(branchJson))
             .toList();
+
+        log(_branchStarters.toString());
+        notifyListeners();
       } else {
         _errorMessage = 'Failed to load addresses and zones';
+        log('Failed to load addresses and zones: ${response.statusCode}');
       }
     } catch (error) {
       _errorMessage = 'An error occurred: $error';
+      log('an error occurred: $error');
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -88,7 +94,8 @@ class AddressProvider with ChangeNotifier {
 
     try {
       final response = await http.post(
-        Uri.parse('https://sultanayubbcknd.food2go.online/customer/address/add'),
+        Uri.parse(
+            'https://sultanayubbcknd.food2go.online/customer/address/add'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',

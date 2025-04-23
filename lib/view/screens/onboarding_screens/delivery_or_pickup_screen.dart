@@ -64,108 +64,95 @@ class _DeliveryOrPickupScreenState extends State<DeliveryOrPickupScreen> {
             right: 0,
             bottom: 0,
             child: ClipRRect(
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(45.0)),
-              child: Container(
-                color: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          const Text(
-                            'Pickup or Delivery',
-                            style: TextStyle(fontSize: 24),
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: List.generate(
-                              2,
-                              (index) {
-                                return OptionContainerWidget(
-                                  text: texts[index],
-                                  icon: index == 0
-                                      ? 'assets/images/food_delivery.svg'
-                                      : 'assets/images/Location.svg',
-                                  onTap: () {
-                                    setState(() {
-                                      selectedIndex = index;
-                                    });
-                                  },
-                                  isSelected: index == selectedIndex,
-                                );
-                              },
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          selectedIndex == 1
-                              ? const Text(
-                                  'Select a branch:',
-                                  style: TextStyle(fontSize: 16),
-                                )
-                              : const Text(
-                                  'Select an address',
-                                  style: TextStyle(fontSize: 16),
-                                ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          selectedIndex == 0
-                              ? const DeliveryContent()
-                              : const PickupContent(),
-                        ],
-                      ),
-                    ),
-                    Consumer<AddressProvider>(
-                      builder: (context, ap, _) {
-                        return ElevatedButton(
-                            onPressed: () {
-                              if (ap.selectedAddressId == null &&
-                                  ap.selectedBranchId == null) {
-                                showTopSnackBar(
-                                  context,
-                                  'Please select an address or a branch',
-                                  Icons.cancel,
-                                  maincolor,
-                                  const Duration(seconds: 2),
-                                );
-                              }else{
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(builder: (ctx)=> const TabsScreen(initialIndex: 0))
-                                );
-                              }
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(45.0)),
+                child: Container(
+                  color: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 10),
+                        const Text(
+                          'Pickup or Delivery',
+                          style: TextStyle(fontSize: 24),
+                        ),
+                        const SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: List.generate(
+                            2,
+                            (index) {
+                              return OptionContainerWidget(
+                                text: texts[index],
+                                icon: index == 0
+                                    ? 'assets/images/food_delivery.svg'
+                                    : 'assets/images/Location.svg',
+                                onTap: () {
+                                  setState(() {
+                                    selectedIndex = index;
+                                  });
+                                },
+                                isSelected: index == selectedIndex,
+                              );
                             },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: maincolor,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(24),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          selectedIndex == 1
+                              ? 'Select a branch:'
+                              : 'Select an address',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        const SizedBox(height: 10),
+                        selectedIndex == 0
+                            ? const DeliveryContent()
+                            : const PickupContent(),
+                        const SizedBox(height: 20),
+                        Consumer<AddressProvider>(
+                          builder: (context, ap, _) {
+                            return ElevatedButton(
+                              onPressed: () {
+                                if (ap.selectedAddressId == null &&
+                                    ap.selectedBranchId == null) {
+                                  showTopSnackBar(
+                                    context,
+                                    'Please select an address or a branch',
+                                    Icons.cancel,
+                                    maincolor,
+                                    const Duration(seconds: 2),
+                                  );
+                                } else {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (ctx) =>
+                                          const TabsScreen(initialIndex: 0),
+                                    ),
+                                  );
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: maincolor,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(24),
+                                ),
+                                minimumSize: const Size(double.infinity, 55),
                               ),
-                              minimumSize: const Size(double.infinity, 55),
-                            ),
-                            child: const Text(
-                              'Done',
-                              style: TextStyle(fontSize: 20),
-                            ));
-                      },
+                              child: const Text(
+                                'Done',
+                                style: TextStyle(fontSize: 20),
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                      ],
                     ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                  ],
-                ),
-              ),
-            ),
+                  ),
+                )),
           ),
         ],
       ),

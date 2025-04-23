@@ -77,14 +77,14 @@ Widget _buildBranchCard(String title, String subTitle, bool isSelected,
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(fontWeight: FontWeight.bold,color: isSelected ? Colors.white : Colors.black),
                   ),
                   const SizedBox(height: 5),
                   Text(
                     subTitle,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: Colors.black.withOpacity(0.7)),
+                    style: TextStyle(color: isSelected ? Colors.white : Colors.black.withOpacity(0.7)),
                   ),
                 ],
               ),

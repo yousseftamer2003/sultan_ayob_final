@@ -324,8 +324,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                                         buildingNumController.text.isEmpty ||
                                         floorNumController.text.isEmpty ||
                                         apartmentController.text.isEmpty ||
-                                        selectedZoneId == null ||
-                                        additionalDataController.text.isEmpty) {
+                                        selectedZoneId == null ) {
                                       showTopSnackBar(
                                         context,
                                         'Please fill all the required fields',

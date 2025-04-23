@@ -83,6 +83,7 @@ class ProductProvider with ChangeNotifier {
         cart[index].product.price / cart[index].product.quantity;
     cart[index].product.quantity++;
     cart[index].product.price = defaultPrice * cart[index].product.quantity;
+    saveCart();
     notifyListeners();
   }
 
@@ -92,6 +93,7 @@ class ProductProvider with ChangeNotifier {
     if (cart[index].product.quantity > 1) {
       cart[index].product.quantity--;
       cart[index].product.price = defaultPrice * cart[index].product.quantity;
+      saveCart();
       notifyListeners();
     }
   }
@@ -263,6 +265,8 @@ class ProductProvider with ChangeNotifier {
   }) async {
     final loginProvider = Provider.of<LoginProvider>(context, listen: false);
     final String token = loginProvider.token!;
+
+    log(date);
 
     try {
       final response = await http.post(
