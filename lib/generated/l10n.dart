@@ -804,9 +804,9 @@ class S {
     return Intl.message('Pending', name: 'pending', desc: '', args: []);
   }
 
-  /// `Preparing`
+  /// `accapted`
   String get preparing {
-    return Intl.message('Preparing', name: 'preparing', desc: '', args: []);
+    return Intl.message('accapted', name: 'preparing', desc: '', args: []);
   }
 
   /// `Out for Delivery`

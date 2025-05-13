@@ -198,7 +198,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "points": MessageLookupByLibrary.simpleMessage("Points"),
     "popular_food": MessageLookupByLibrary.simpleMessage("Popular Food"),
-    "preparing": MessageLookupByLibrary.simpleMessage("Preparing"),
+    "preparing": MessageLookupByLibrary.simpleMessage("accapted"),
     "price": MessageLookupByLibrary.simpleMessage("Price"),
     "receipt_uploaded_successfully": MessageLookupByLibrary.simpleMessage(
       "Receipt uploaded successfully.",

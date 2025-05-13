@@ -99,7 +99,7 @@
     "delivery_time": "Delivery time: unknown",
     "time_difference": "Time Difference: {minutes} minutes",
     "pending": "Pending",
-    "preparing": "Preparing",
+    "preparing": "accapted",
     "out_for_delivery": "Out for Delivery",
     "delivered": "Delivered",
     "error_loading_data": "Error: {error}",
