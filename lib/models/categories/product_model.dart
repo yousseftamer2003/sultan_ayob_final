@@ -71,24 +71,19 @@ class Product {
             : 0.0, // Ensure `double`
         discountId: json['discount_id']?.toString() ?? '',
         taxId: json['tax_id']?.toString() ?? '',
-        excludes: (json['excludes'] as List<dynamic>)
-            .map((e) => Excludes.fromJson(e))
-            .toList(),
-        extra: (json['extra'] as List<dynamic>)
-            .map((e) => Extra.fromJson(e))
-            .toList(),
-        variations: (json['variations'] as List)
-            .map((variation) => Variation.fromJson(variation))
-            .toList(),
+        excludes: (json['excludes'] as List?)?.map((e) => Excludes.fromJson(e)).toList() ?? [],
+        extra: (json['extra'] as List?)?.map((e) => Extra.fromJson(e)).toList() ?? [],
+        addons: (json['addons'] as List?)?.map((e) => AddOns.fromJson(e)).toList() ?? [],
+        variations: (json['variations'] as List?)?.map((e) => Variation.fromJson(e)).toList() ?? [],
+
         discount: json['discount'] != null
             ? Discount.fromJson(json['discount'])
             : Discount(name: '', amount: 0.0, type: '', id: 0),
-        addons: (json['addons'] as List<dynamic>)
-            .map((item) => AddOns.fromJson(item))
-            .toList(),
+
         tax: json['tax'] != null
             ? Tax.fromJson(json['tax'])
             : Tax(name: '', amount: 0.0, type: '', id: 0),
+        quantity: json['quantity'] ?? 1,
       );
 
       Map<String, dynamic> toJson() => {
@@ -214,32 +209,78 @@ class Extra {
   final String name;
   final int id;
   final int productId;
-  double price;
   int extraQuantity;
+  List<Pricing> pricing;
 
   Extra(
       {required this.name,
       required this.id,
       required this.productId,
-      required this.price,
-      this.extraQuantity = 1
+      this.extraQuantity = 1,
+      this.pricing = const [],
       });
 
   factory Extra.fromJson(Map<String, dynamic> json) => Extra(
         name: json['name'],
         id: json['id'],
         productId: json['product_id'],
-        price: json['price'].toDouble(),
+        pricing: (json['pricing'] != null && json['pricing'] is List)
+          ? (json['pricing'] as List)
+              .map((e) => Pricing.fromJson(e))
+              .toList()
+          : [],
       );
 
       Map<String, dynamic> toJson() => {
   'name': name,
   'id': id,
   'product_id': productId,
-  'price': price,
   'extra_quantity': extraQuantity,
 };
+}
 
+class Pricing {
+  final int id;
+  final int? price;
+  final int? productId;
+  final int? variationId;
+  final int? extraId;
+  final int? optionId;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+
+  Pricing({
+    required this.id,
+    required this.price,
+    required this.productId,
+    required this.variationId,
+    required this.extraId,
+    required this.optionId,
+    this.createdAt,
+    this.updatedAt,
+  });
+
+  factory Pricing.fromJson(Map<String, dynamic> json) => Pricing(
+        id: json['id'],
+        price: json['price'],
+        productId: json['product_id'] ?? 0,
+        variationId: json['variation_id'] ?? 0,
+        extraId: json['extra_id'] ?? 0,
+        optionId: json['option_id'] ?? 0,
+        createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : null,
+        updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at']) : null,
+      );
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'price': price,
+        'product_id': productId,
+        'variation_id': variationId,
+        'extra_id': extraId,
+        'option_id': optionId,
+        'created_at': createdAt?.toIso8601String(),
+        'updated_at': updatedAt?.toIso8601String(),
+      };
 }
 
 class Variation {
@@ -274,9 +315,7 @@ class Variation {
         required: json['required'],
         productId: json['product_id'],
         points: json['points']?? 0,
-        options: (json['options'] as List)
-            .map((option) => Option.fromJson(option))
-            .toList(),
+        options: (json['options'] as List?)?.map((option) => Option.fromJson(option)).toList() ?? [],
       );
 
     Map<String, dynamic> toJson() => {
@@ -316,9 +355,7 @@ class Option {
         price: json['price']?.toDouble() ?? 0.0,
         productId: json['product_id'],
         variationId: json['variation_id'],
-        extra: (json['extra'] as List)
-            .map((extraItem) => Extra.fromJson(extraItem))
-            .toList(),
+        extra: (json['extra'] as List?)?.map((extraItem) => Extra.fromJson(extraItem)).toList() ?? [],
       );
 
     Map<String, dynamic> toJson() => {

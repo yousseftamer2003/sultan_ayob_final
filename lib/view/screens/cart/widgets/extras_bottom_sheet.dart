@@ -36,7 +36,7 @@ class _ExtrasBottomSheetState extends State<ExtrasBottomSheet> {
   double getTotalPrice(List<Extra> extras) {
     double totalPrice = 0.0;
     for (var index in selectedExtras) {
-      totalPrice += extras[index].price;
+      // totalPrice += extras[index].price;
     }
     return totalPrice;
   }
@@ -118,7 +118,7 @@ class _ExtrasBottomSheetState extends State<ExtrasBottomSheet> {
                                 ),
                               ),
                               Text(
-                                '+${extras[index].price.toStringAsFixed(2)}',
+                                '+}',
                                 style: const TextStyle(color: Colors.grey),
                               ),
                             ],

@@ -51,7 +51,7 @@ class _FoodCardState extends State<FoodCard> {
                     )));
       },
       child: Container(
-        width: 135,
+        width: 150,
         height: 180, // Set the height as requested
         margin: const EdgeInsets.symmetric(horizontal: 8),
         decoration: BoxDecoration(

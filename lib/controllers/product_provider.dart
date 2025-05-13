@@ -8,9 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:food2go_app/constants/colors.dart';
 import 'package:food2go_app/constants/strings.dart';
 import 'package:food2go_app/controllers/Auth/login_provider.dart';
-import 'package:food2go_app/controllers/address/get_address_provider.dart';
 import 'package:food2go_app/controllers/lang_services_controller.dart';
-import 'package:food2go_app/models/categories/cart_model.dart';
 import 'package:food2go_app/models/categories/product_model.dart';
 import 'package:food2go_app/view/screens/checkout/order_completed_screen.dart';
 import 'package:food2go_app/view/screens/checkout/order_failed_screen.dart';
@@ -33,8 +31,8 @@ class ProductProvider with ChangeNotifier {
   List<Product> _discounts = [];
   List<Product> get discounts => _discounts;
 
-  List<CartItem> _cart = [];
-  List<CartItem> get cart => _cart;
+  List<Product> _cart = [];
+  List<Product> get cart => _cart;
 
   List<Product> _filteredProducts = [];
   List<Product> get filteredProducts => _filteredProducts;
@@ -48,14 +46,14 @@ class ProductProvider with ChangeNotifier {
     _totalPrice = 0.0;
     double defaultPrice;
     for (var item in cart) {
-      defaultPrice = item.product.price / item.product.quantity;
-      defaultPrice += (defaultPrice * (item.product.tax.amount / 100));
-      if (item.product.discountId.isNotEmpty) {
-        defaultPrice -= (defaultPrice * (item.product.discount.amount / 100));
+      defaultPrice = item.price / item.quantity;
+      defaultPrice += (defaultPrice * (item.tax.amount / 100));
+      if (item.discountId.isNotEmpty) {
+        defaultPrice -= (defaultPrice * (item.discount.amount / 100));
       }
-      _totalPrice += defaultPrice * item.product.quantity;
+      _totalPrice += defaultPrice * item.quantity;
       for (var extra in item.extra) {
-        _totalPrice += extra.price * extra.extraQuantity;
+        // _totalPrice += extra.price * extra.extraQuantity;
       }
     }
     return _totalPrice;
@@ -78,21 +76,21 @@ class ProductProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void increaseProductQuantity(int index) {
-    double defaultPrice =
-        cart[index].product.price / cart[index].product.quantity;
-    cart[index].product.quantity++;
-    cart[index].product.price = defaultPrice * cart[index].product.quantity;
+  void increaseProductQuantity(Product product) {
+    double defaultPrice = product.price / product.quantity;
+    product.quantity++;
+    product.price = defaultPrice * product.quantity;
     saveCart();
     notifyListeners();
   }
 
-  void decreaseProductQuantity(int index) {
-    double defaultPrice =
-        cart[index].product.price / cart[index].product.quantity;
-    if (cart[index].product.quantity > 1) {
-      cart[index].product.quantity--;
-      cart[index].product.price = defaultPrice * cart[index].product.quantity;
+  void decreaseProductQuantity(Product product) {
+    if (product.quantity > 1) {
+      double defaultPrice = product.price / product.quantity;
+
+      product.quantity--;
+      product.price = defaultPrice * product.quantity;
+
       saveCart();
       notifyListeners();
     }
@@ -129,8 +127,6 @@ class ProductProvider with ChangeNotifier {
     try {
       final langProvider = Provider.of<LangServices>(context, listen: false);
       final selectedLang = langProvider.selectedLang;
-      final addressProvider =
-          Provider.of<AddressProvider>(context, listen: false);
 
       final String url = '$categoriesUrl?locale=$selectedLang';
 
@@ -140,14 +136,11 @@ class ProductProvider with ChangeNotifier {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        body: jsonEncode({
-          'user_id': id,
-          'address_id': addressProvider.selectedAddressId,
-          'branch_id': addressProvider.selectedBranchId
-        }),
+        body: jsonEncode({'user_id': id}),
       );
 
       if (response.statusCode == 200) {
+        log(url);
         Map<String, dynamic> responseData = jsonDecode(response.body);
         Products products = Products.fromJson(responseData);
         _products = products.products.map((e) => Product.fromJson(e)).toList();
@@ -266,7 +259,41 @@ class ProductProvider with ChangeNotifier {
     final loginProvider = Provider.of<LoginProvider>(context, listen: false);
     final String token = loginProvider.token!;
 
-    log(date);
+    final Map<String, dynamic> requestBody = {
+      'locale': 'ar',
+      'notes': notes,
+      'date': date,
+      'payment_method_id': paymentMethodId,
+      'receipt': receipt,
+      'branch_id': branchId,
+      'amount': totalPrice + zonePrice,
+      'total_tax': totalTax,
+      'total_discount': totalDiscount,
+      'address_id': addressId,
+      'order_type': orderType,
+      'delivery_price': zonePrice,
+      'products': products
+          .map((product) => {
+                'product_id': product.id,
+                'count': product.quantity,
+                'addons': product.addons
+                    .map((addon) =>
+                        {'addon_id': addon.id, 'count': addon.selectedQuantity})
+                    .toList(),
+                'variation': product.variations
+                    .map((variation) => {
+                          'variation_id': variation.id,
+                          'option_id':
+                              variation.options.map((e) => e.id).toList(),
+                        })
+                    .toList(),
+                'extra_id': product.extra.map((e) => e.id).toList(),
+                'exclude_id': product.excludes.map((e) => e.id).toList(),
+              })
+          .toList(),
+    };
+
+    log('Request Data: ${jsonEncode(requestBody)}');
 
     try {
       final response = await http.post(
@@ -276,45 +303,10 @@ class ProductProvider with ChangeNotifier {
           'Accept': 'application/json',
           'Authorization': 'Bearer $token',
         },
-        body: jsonEncode({
-          'notes': notes,
-          'date': date,
-          'payment_method_id': paymentMethodId,
-          'receipt': receipt,
-          'branch_id': branchId,
-          'amount': totalPrice + zonePrice,
-          'total_tax': totalTax,
-          'total_discount': totalDiscount,
-          'address_id': addressId,
-          'order_type': orderType,
-          'delivery_price': zonePrice,
-          'products': products
-              .map((product) => {
-                    'product_id': product.id,
-                    'count': product.quantity,
-                    'addons': product.addons
-                        .map((addon) => {
-                              'addon_id': addon.id,
-                              'count': addon.selectedQuantity
-                            })
-                        .toList(),
-                    'variation': product.variations
-                        .map((variation) => {
-                              'variation_id': variation.id,
-                              'option_id':
-                                  variation.options.map((e) => e.id).toList(),
-                            })
-                        .toList(),
-                    'extra_id': product.extra.map((e) => e.id).toList(),
-                    'exclude_id': product.excludes.map((e) => e.id).toList(),
-                  })
-              .toList(),
-        }),
+        body: jsonEncode(requestBody),
       );
-      log('total amount: ${totalPrice + zonePrice}');
 
       if (response.statusCode == 200) {
-        log('response body: ${response.body}');
         final responseData = jsonDecode(response.body);
 
         if (responseData.containsKey('paymentLink')) {
@@ -347,18 +339,8 @@ class ProductProvider with ChangeNotifier {
     }
   }
 
-  Future<void> addToCart(
-      Product product,
-      List<Extra> extra,
-      List<Option> options,
-      List<AddOns> addons,
-      List<Excludes> excludes) async {
-    _cart.add(CartItem(
-        product: product,
-        extra: extra,
-        options: options,
-        addons: addons,
-        excludes: excludes));
+  Future<void> addToCart(Product product) async {
+    _cart.add(product);
     await saveCart();
     notifyListeners();
   }
@@ -381,14 +363,14 @@ class ProductProvider with ChangeNotifier {
     final String cartJson =
         jsonEncode(_cart.map((item) => item.toJson()).toList());
     await prefs.setString(_cartKey, cartJson);
+    log('Cart saved: $cartJson');
   }
 
   Future<void> loadCart() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? cartJson = prefs.getString(_cartKey);
     if (cartJson != null) {
-      final List<dynamic> decoded = jsonDecode(cartJson);
-      _cart = decoded.map((item) => CartItem.fromJson(item)).toList();
+      _cart = List.from(jsonDecode(cartJson).map((item) => Product.fromJson(item)));
     } else {
       _cart = [];
     }

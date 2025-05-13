@@ -477,8 +477,7 @@ if (from.isNotEmpty && to.isNotEmpty) {
   Widget _buildDealsSection() {
     return GestureDetector(
       onTap: () {
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (ctx) => const DealsScreen()));
+        Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const DealsScreen()));
       },
       child: SizedBox(
         height: 100,
@@ -583,7 +582,7 @@ if (from.isNotEmpty && to.isNotEmpty) {
 
   Widget _buildFoodItemsList() {
     return SizedBox(
-      height: 200,
+      height: 210,
       child: Consumer<ProductProvider>(builder: (context, productProvider, _) {
         return ListView.builder(
           scrollDirection: Axis.horizontal,
