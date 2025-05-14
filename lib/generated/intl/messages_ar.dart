@@ -62,7 +62,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "add_on_order": MessageLookupByLibrary.simpleMessage("إضافة على الطلب"),
     "add_to_cart": MessageLookupByLibrary.simpleMessage("أضف إلى السلة"),
-    "additional_data": MessageLookupByLibrary.simpleMessage("بيانات إضافية"),
+    "additional_data": MessageLookupByLibrary.simpleMessage("علامة مميزة"),
     "address": MessageLookupByLibrary.simpleMessage("العنوان"),
     "addresses": MessageLookupByLibrary.simpleMessage("العناوين"),
     "all": MessageLookupByLibrary.simpleMessage("الكل"),

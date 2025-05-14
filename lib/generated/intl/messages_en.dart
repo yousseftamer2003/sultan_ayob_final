@@ -66,7 +66,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "add_on_order": MessageLookupByLibrary.simpleMessage("Add on order"),
     "add_to_cart": MessageLookupByLibrary.simpleMessage("Add to cart"),
-    "additional_data": MessageLookupByLibrary.simpleMessage("Additional Data"),
+    "additional_data": MessageLookupByLibrary.simpleMessage(
+      "Unique identifier",
+    ),
     "address": MessageLookupByLibrary.simpleMessage("Address"),
     "addresses": MessageLookupByLibrary.simpleMessage("Addresses"),
     "all": MessageLookupByLibrary.simpleMessage("All"),

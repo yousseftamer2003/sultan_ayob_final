@@ -594,10 +594,10 @@ class S {
     return Intl.message('Apartment', name: 'apartment', desc: '', args: []);
   }
 
-  /// `Additional Data`
+  /// `Unique identifier`
   String get additional_data {
     return Intl.message(
-      'Additional Data',
+      'Unique identifier',
       name: 'additional_data',
       desc: '',
       args: [],
