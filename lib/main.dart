@@ -8,6 +8,7 @@ import 'package:food2go_app/controllers/chat/userChat/get_messages_provider.dart
 import 'package:food2go_app/controllers/chat/userChat/send_message_provider.dart';
 import 'package:food2go_app/controllers/lang_services_controller.dart';
 import 'package:food2go_app/controllers/tabs_controller.dart';
+import 'package:food2go_app/controllers/time_schedule_provider.dart';
 import 'package:food2go_app/generated/l10n.dart';
 import 'package:provider/provider.dart';
 import 'package:food2go_app/controllers/Auth/forget_password_provider.dart';
@@ -80,6 +81,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => TabsController()),
         ChangeNotifierProvider(create: (_) => BusinessSetupController()),
         ChangeNotifierProvider(create: (_) => LangServices()),
+        ChangeNotifierProvider(create: (_) => ScheduleProvider()),
       ],
       child: ScreenUtilInit(
         designSize: const Size(360, 690),
@@ -87,23 +89,23 @@ class MyApp extends StatelessWidget {
         builder: (context, child) => Consumer<LangServices>(
           builder: (context, langServices, _) {
             return MaterialApp(
-            locale: langServices.locale,
-            localizationsDelegates: const [
-                  S.delegate,
-                  GlobalMaterialLocalizations.delegate,
-                  GlobalWidgetsLocalizations.delegate,
-                  GlobalCupertinoLocalizations.delegate,
+              locale: langServices.locale,
+              localizationsDelegates: const [
+                S.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
               ],
               supportedLocales: S.delegate.supportedLocales,
-            theme: ThemeData(
-              fontFamily: 'Poppins',
-              scaffoldBackgroundColor: Colors.grey.shade100,
-              appBarTheme: AppBarTheme(backgroundColor: Colors.grey.shade100),
-            ),
-            debugShowCheckedModeBanner: false,
-            title: 'Food2go',
-            home: const LogoOnboarding(),
-          );
+              theme: ThemeData(
+                fontFamily: 'Poppins',
+                scaffoldBackgroundColor: Colors.grey.shade100,
+                appBarTheme: AppBarTheme(backgroundColor: Colors.grey.shade100),
+              ),
+              debugShowCheckedModeBanner: false,
+              title: 'Food2go',
+              home: const LogoOnboarding(),
+            );
           },
         ),
       ),

@@ -4,15 +4,16 @@ class BusinessSetup {
   final double minOrder;
   final String today;
   final CompanyInfo companyInfo;
-  final TimeSlot timeSlot;
+  final bool openFlag;
 
-  BusinessSetup(
-      {required this.login,
-      required this.loginDelivery,
-      required this.minOrder,
-      required this.today,
-      required this.companyInfo,
-      required this.timeSlot});
+  BusinessSetup({
+    required this.login,
+    required this.loginDelivery,
+    required this.minOrder,
+    required this.today,
+    required this.companyInfo,
+    required this.openFlag,
+  });
 
   factory BusinessSetup.fromJson(Map<String, dynamic> json) {
     return BusinessSetup(
@@ -21,7 +22,7 @@ class BusinessSetup {
       minOrder: json['min_order'].toDouble(),
       today: json['today'],
       companyInfo: CompanyInfo.fromJson(json['company_info']),
-      timeSlot: TimeSlot.fromJson(json['time_slot']),
+      openFlag: json['open_flag'],
     );
   }
 }
@@ -62,18 +63,4 @@ class Currency {
   final String name;
 
   Currency({required this.id, required this.name});
-}
-
-class TimeSlot {
-  final List<dynamic> dailySlots;
-  final List<dynamic> daysOff;
-
-  TimeSlot({required this.dailySlots, required this.daysOff});
-
-  factory TimeSlot.fromJson(Map<String, dynamic> json) {
-    return TimeSlot(
-      dailySlots: json['daily'],
-      daysOff: json['custom'],
-    );
-  }
 }

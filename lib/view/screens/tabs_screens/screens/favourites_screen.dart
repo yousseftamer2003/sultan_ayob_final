@@ -18,22 +18,10 @@ class FavouritesScreen extends StatefulWidget {
 class _FavouritesScreenState extends State<FavouritesScreen> {
   @override
   Widget build(BuildContext context) {
-    final businessSetupProvider = Provider.of<BusinessSetupController>(context, listen: false);
-String from = businessSetupProvider.from;
-String to = businessSetupProvider.to;
+    final businessSetupProvider =
+        Provider.of<BusinessSetupController>(context, listen: false);
+    bool isClosed = businessSetupProvider.businessSetup?.openFlag == false;
 
-
-bool isClosed = false;
-
-if (from.isNotEmpty && to.isNotEmpty) {
-  final now = DateTime.now();
-  final fromTime = DateTime(now.year, now.month, now.day,
-      int.parse(from.split(':')[0]), int.parse(from.split(':')[1]));
-  final toTime = DateTime(now.year, now.month, now.day,
-      int.parse(to.split(':')[0]), int.parse(to.split(':')[1]));
-
-  isClosed = now.isAfter(fromTime) && now.isBefore(toTime);
-}
     return WillPopScope(
       onWillPop: () async {
         return false;
@@ -46,7 +34,7 @@ if (from.isNotEmpty && to.isNotEmpty) {
               child: Column(
                 children: [
                   const SizedBox(height: 16),
-                    Center(
+                  Center(
                     child: Text(
                       S.of(context).favorites,
                       style: const TextStyle(
@@ -60,19 +48,18 @@ if (from.isNotEmpty && to.isNotEmpty) {
                     child: Consumer<ProductProvider>(
                       builder: (context, productProvider, _) {
                         if (productProvider.favorites.isEmpty) {
-                          return  Center(
+                          return Center(
                             child: Text(S.of(context).no_favorites_yet),
                           );
                         } else {
-                          // List to hold widgets
                           List<Widget> contentWidgets = [];
-            
+
                           if (productProvider.favorites.isNotEmpty) {
                             contentWidgets.add(
                               Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: GridView.builder(
-                                  shrinkWrap: true, 
+                                  shrinkWrap: true,
                                   physics: const NeverScrollableScrollPhysics(),
                                   gridDelegate:
                                       const SliverGridDelegateWithFixedCrossAxisCount(
@@ -82,7 +69,8 @@ if (from.isNotEmpty && to.isNotEmpty) {
                                     mainAxisExtent: 210,
                                   ),
                                   itemCount: productProvider.favorites.length,
-                                  itemBuilder: (BuildContext context, int index) {
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
                                     final product =
                                         productProvider.favorites[index];
                                     return FoodCard(
@@ -99,7 +87,7 @@ if (from.isNotEmpty && to.isNotEmpty) {
                               ),
                             );
                           }
-            
+
                           return ListView(
                             children: contentWidgets,
                           );
@@ -111,18 +99,19 @@ if (from.isNotEmpty && to.isNotEmpty) {
               ),
             ),
             if (isClosed) ...[
-            GestureDetector(
-              onTap: () {}, // Blocks taps on the underlying widgets
-              child: Container(
-                color: Colors.black.withOpacity(0.6), // Semi-transparent overlay
-                width: double.infinity,
-                height: double.infinity,
+              GestureDetector(
+                onTap: () {}, 
+                child: Container(
+                  color:
+                      Colors.black.withOpacity(0.6), 
+                  width: double.infinity,
+                  height: double.infinity,
+                ),
               ),
-            ),
-            Center(
-              child: buildClosedWrap(context, from, to),
-            ),
-          ],
+              Center(
+                child: buildClosedWrap(context),
+              ),
+            ],
           ],
         ),
       ),

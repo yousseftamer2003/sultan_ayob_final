@@ -54,36 +54,36 @@ class _AddonSelectionWidgetState extends State<AddonSelectionWidget> {
             return Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(addon.name),
+                Text('${addon.name} (${addon.price.toStringAsFixed(2)})'),
                 Row(
                   children: [
                     Checkbox(
-                      value: selectedAddOnIndices.contains(index),
-                      activeColor: widget.mainColor,
-                      onChanged: (value) {
-                              setState(() {
-                                if (value == true) {
-                                  selectedAddOnIndices.add(index);
-                                  addonQuantities[index] = 1;
-                                  addon.selectedQuantity = 1;
-                                  selectedAddons.add(addon);
-                                  widget.product.price += addon.price;
-                                } else {
-                                  log('${addon.selectedQuantity}');
-                                  log('${addon.price * addon.selectedQuantity}');
-                                  selectedAddOnIndices.remove(index);
-                                  widget.product.price -= addon.price * addon.selectedQuantity;
-                                  addonQuantities[index] = 0;
-                                  addon.selectedQuantity = 0;
-                                  selectedAddons.remove(addon);
-                                  widget.product.price -= addon.price * addon.selectedQuantity;
-                                }
-                                widget.onAddonsChanged(
-                                    selectedAddons, widget.product.price);
-                              });
+                        value: selectedAddOnIndices.contains(index),
+                        activeColor: widget.mainColor,
+                        onChanged: (value) {
+                          setState(() {
+                            if (value == true) {
+                              selectedAddOnIndices.add(index);
+                              addonQuantities[index] = 1;
+                              addon.selectedQuantity = 1;
+                              selectedAddons.add(addon);
+                              widget.product.price += addon.price;
+                            } else {
+                              log('${addon.selectedQuantity}');
+                              log('${addon.price * addon.selectedQuantity}');
+                              selectedAddOnIndices.remove(index);
+                              widget.product.price -=
+                                  addon.price * addon.selectedQuantity;
+                              addonQuantities[index] = 0;
+                              addon.selectedQuantity = 0;
+                              selectedAddons.remove(addon);
+                              widget.product.price -=
+                                  addon.price * addon.selectedQuantity;
                             }
-                          
-                    ),
+                            widget.onAddonsChanged(
+                                selectedAddons, widget.product.price);
+                          });
+                        }),
                     if (canAdjustQuantity &&
                         selectedAddOnIndices.contains(index))
                       Row(
@@ -108,10 +108,12 @@ class _AddonSelectionWidgetState extends State<AddonSelectionWidget> {
                             icon: const Icon(Icons.add),
                             onPressed: () {
                               setState(() {
-                                  addonQuantities[index] = (addonQuantities[index] ?? 0) + 1;
-                                  addon.selectedQuantity++;
-                                  widget.product.price += addon.price;
-                                  widget.onAddonsChanged(selectedAddons, widget.product.price);
+                                addonQuantities[index] =
+                                    (addonQuantities[index] ?? 0) + 1;
+                                addon.selectedQuantity++;
+                                widget.product.price += addon.price;
+                                widget.onAddonsChanged(
+                                    selectedAddons, widget.product.price);
                               });
                             },
                           ),

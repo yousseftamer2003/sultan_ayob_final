@@ -1,4 +1,3 @@
-// ignore_for_file: use_build_context_synchronously, avoid_print
 import 'package:flutter/material.dart';
 import 'package:food2go_app/constants/colors.dart';
 import 'package:food2go_app/controllers/orders/orders_history_provider.dart';
@@ -6,6 +5,8 @@ import 'package:food2go_app/controllers/orders/orders_provider.dart';
 import 'package:food2go_app/generated/l10n.dart';
 import 'package:food2go_app/models/orders/order_history_model.dart';
 import 'package:food2go_app/models/orders/orders_model.dart';
+import 'package:food2go_app/view/screens/my_orders/single_order_history_screen.dart';
+import 'package:food2go_app/view/screens/my_orders/single_order_screen.dart'; // You'll need to create this
 import 'package:food2go_app/view/screens/order_tracing_screen.dart';
 import 'package:food2go_app/view/screens/tabs_screen.dart';
 import 'package:intl/intl.dart';
@@ -182,14 +183,12 @@ class MyOrderScreen extends StatelessWidget {
   Widget _buildOrderCard(BuildContext context, Order order) {
     final ordersProvider = Provider.of<OrdersProvider>(context, listen: false);
 
-    // Convert cancelTime to DateTime format if it's in string format
     DateTime? cancelTimeDate;
     if (ordersProvider.cancelTime != null) {
-      cancelTimeDate = DateFormat("yyyy-MM-dd HH:mm:ss")
-          .parse(ordersProvider.cancelTime!); // Update format as per your API
+      cancelTimeDate =
+          DateFormat("yyyy-MM-dd HH:mm:ss").parse(ordersProvider.cancelTime!);
     }
 
-    // Check if the current time is before cancelTimeDate
     final canCancelOrder =
         cancelTimeDate != null && DateTime.now().isBefore(cancelTimeDate);
 
@@ -204,7 +203,7 @@ class MyOrderScreen extends StatelessWidget {
               actions: [
                 TextButton(
                   onPressed: () {
-                    // Navigate to OrderTrackingScreen or execute track order logic
+                    Navigator.pop(context);
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -215,14 +214,30 @@ class MyOrderScreen extends StatelessWidget {
                   },
                   child: Text(S.of(context).track_order),
                 ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SingleOrderScreen(order: order),
+                      ),
+                    );
+                  },
+                  child: const Text(
+                    "View Details",
+                    style: TextStyle(color: maincolor),
+                  ),
+                ),
                 if (canCancelOrder)
                   TextButton(
                     onPressed: () async {
+                      Navigator.pop(context); // Close dialog
                       await ordersProvider.cancelOrder(context, order.id!);
                     },
                     child: Text(
                       S.of(context).cancel_order,
-                      style: const TextStyle(color: maincolor),
+                      style: const TextStyle(color: Colors.red),
                     ),
                   )
                 else
@@ -230,8 +245,7 @@ class MyOrderScreen extends StatelessWidget {
                     onPressed: null, // Disable the button
                     child: Text(
                       S.of(context).cancellation_time_expired,
-                      style: const TextStyle(
-                          color: Colors.grey), // Greyed-out text to indicate it's disabled
+                      style: const TextStyle(color: Colors.grey),
                     ),
                   ),
               ],
@@ -277,7 +291,7 @@ class MyOrderScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Order #${order.id}',
+                      'Order #${order.orderNumber ?? order.id}',
                       style: const TextStyle(
                         color: maincolor,
                         fontSize: 16,
@@ -295,7 +309,7 @@ class MyOrderScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      order.paidBy ?? '',
+                      order.paymentMethod?.name ?? '',
                       style: const TextStyle(
                         color: Colors.grey,
                         fontSize: 14,
@@ -304,12 +318,24 @@ class MyOrderScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              Text(
-                order.orderStatus ?? '',
-                style: const TextStyle(
-                  color: Colors.grey,
-                  fontSize: 14,
-                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    order.orderStatus ?? '',
+                    style: TextStyle(
+                      color: _getStatusColor(order.orderStatus),
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  const Icon(
+                    Icons.arrow_forward_ios,
+                    size: 14,
+                    color: Colors.grey,
+                  ),
+                ],
               ),
             ],
           ),
@@ -319,81 +345,123 @@ class MyOrderScreen extends StatelessWidget {
   }
 
   Widget _buildOrderHistoryCard(BuildContext context, OrderHistoryModel order) {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16.0),
-      ),
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          children: [
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: maincolor,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.asset(
-                  'assets/images/medium.png',
-                  fit: BoxFit.cover,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SingleOrderHistoryScreen(order: order),
+          ),
+        );
+      },
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.0),
+        ),
+        margin: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: maincolor,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.asset(
+                    'assets/images/medium.png',
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      order.date ?? '',
+                      style: const TextStyle(
+                        color: Colors.grey,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Order #${order.orderNumber ?? order.id}',
+                      style: const TextStyle(
+                        color: maincolor,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${order.amount ?? 0} £',
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      order.paymentMethod?.name ?? 'Unknown payment method',
+                      style: const TextStyle(
+                        color: Colors.grey,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    order.date ?? '',
-                    style: const TextStyle(
-                      color: Colors.grey,
+                    order.orderStatus ?? '',
+                    style: TextStyle(
+                      color: _getStatusColor(order.orderStatus),
                       fontSize: 14,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Order #${order.id}',
-                    style: const TextStyle(
-                      color: maincolor,
-                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    '${order.amount ?? 0} £',
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    order.paidBy ?? '',
-                    style: const TextStyle(
-                      color: Colors.grey,
-                      fontSize: 14,
-                    ),
+                  const Icon(
+                    Icons.arrow_forward_ios,
+                    size: 14,
+                    color: Colors.grey,
                   ),
                 ],
               ),
-            ),
-            Text(
-              order.orderStatus ?? '',
-              style: const TextStyle(
-                color: Colors.grey,
-                fontSize: 14,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  Color _getStatusColor(String? status) {
+    if (status == null) return Colors.grey;
+
+    switch (status.toLowerCase()) {
+      case 'delivered':
+        return Colors.green;
+      case 'canceled':
+        return Colors.red;
+      case 'pending':
+        return Colors.orange;
+      case 'processing':
+        return Colors.blue;
+      case 'shipping':
+      case 'shipped':
+        return Colors.purple;
+      default:
+        return Colors.grey;
+    }
   }
 }

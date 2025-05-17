@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:food2go_app/constants/colors.dart';
 import 'package:food2go_app/constants/strings.dart';
 import 'package:food2go_app/controllers/Auth/login_provider.dart';
+import 'package:food2go_app/controllers/address/get_address_provider.dart';
 import 'package:food2go_app/controllers/lang_services_controller.dart';
 import 'package:food2go_app/models/categories/product_model.dart';
 import 'package:food2go_app/view/screens/checkout/order_completed_screen.dart';
@@ -242,24 +243,24 @@ class ProductProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> postCart(
-    BuildContext context, {
-    required List<Product> products,
-    String? receipt,
-    String? notes,
-    required String date,
-    int? branchId,
-    required double totalTax,
-    int? addressId,
-    required int paymentMethodId,
-    required String orderType,
-    required double zonePrice,
-    double? totalDiscount,
-  }) async {
+  Future<void> postCart(BuildContext context,
+      {required List<Product> products,
+      String? receipt,
+      String? notes,
+      required String date,
+      int? branchId,
+      required double totalTax,
+      int? addressId,
+      required int paymentMethodId,
+      required String orderType,
+      required double zonePrice,
+      double? totalDiscount,
+      int? secheduleslotid}) async {
     final loginProvider = Provider.of<LoginProvider>(context, listen: false);
     final String token = loginProvider.token!;
 
     final Map<String, dynamic> requestBody = {
+      'sechedule_slot_id': secheduleslotid,
       'locale': 'ar',
       'notes': notes,
       'date': date,
@@ -327,6 +328,9 @@ class ProductProvider with ChangeNotifier {
         } else {
           final int orderId = responseData['success'];
           clearCart();
+          Provider.of<AddressProvider>(context, listen: false)
+            ..selectedAddressId = null
+            ..selectedBranchId = null;
           Navigator.of(context).push(MaterialPageRoute(
               builder: (ctx) => OrderCompletedScreen(orderId: orderId)));
         }
@@ -370,7 +374,8 @@ class ProductProvider with ChangeNotifier {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? cartJson = prefs.getString(_cartKey);
     if (cartJson != null) {
-      _cart = List.from(jsonDecode(cartJson).map((item) => Product.fromJson(item)));
+      _cart =
+          List.from(jsonDecode(cartJson).map((item) => Product.fromJson(item)));
     } else {
       _cart = [];
     }

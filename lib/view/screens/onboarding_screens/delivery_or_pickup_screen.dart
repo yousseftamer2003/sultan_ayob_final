@@ -18,7 +18,7 @@ class DeliveryOrPickupScreen extends StatefulWidget {
 
 class _DeliveryOrPickupScreenState extends State<DeliveryOrPickupScreen> {
   int selectedIndex = 0;
-  final List<String> texts = ['Delivery', 'Pickup'];
+  final List<String> texts = ['Delivery', 'pickup'];
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {

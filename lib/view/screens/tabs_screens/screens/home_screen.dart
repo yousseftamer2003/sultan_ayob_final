@@ -58,23 +58,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final businessSetupProvider = Provider.of<BusinessSetupController>(context, listen: false);
-String from = businessSetupProvider.from;
-String to = businessSetupProvider.to;
+    final businessSetupProvider =
+        Provider.of<BusinessSetupController>(context, listen: false);
 
-
-bool isClosed = false;
-
-if (from.isNotEmpty && to.isNotEmpty) {
-  final now = DateTime.now();
-  final fromTime = DateTime(now.year, now.month, now.day,
-      int.parse(from.split(':')[0]), int.parse(from.split(':')[1]));
-  final toTime = DateTime(now.year, now.month, now.day,
-      int.parse(to.split(':')[0]), int.parse(to.split(':')[1]));
-
-  isClosed = now.isAfter(fromTime) && now.isBefore(toTime);
-}
-
+    bool isClosed = businessSetupProvider.businessSetup?.openFlag == false;
 
     return WillPopScope(
       onWillPop: () async {
@@ -83,7 +70,6 @@ if (from.isNotEmpty && to.isNotEmpty) {
       child: Scaffold(
         body: Stack(
           children: [
-            // Main content
             Padding(
               padding: const EdgeInsets.all(10.0),
               child: ListView(
@@ -108,20 +94,18 @@ if (from.isNotEmpty && to.isNotEmpty) {
                 ],
               ),
             ),
-
-            // Overlay when closed
             if (isClosed) ...[
               GestureDetector(
-                onTap: () {}, // Blocks taps on the underlying widgets
+                onTap: () {}, 
                 child: Container(
                   color:
-                      Colors.black.withOpacity(0.6), // Semi-transparent overlay
+                      Colors.black.withOpacity(0.6), 
                   width: double.infinity,
                   height: double.infinity,
                 ),
               ),
               Center(
-                child: buildClosedWrap(context, from, to),
+                child: buildClosedWrap(context),
               ),
             ],
           ],
@@ -477,7 +461,8 @@ if (from.isNotEmpty && to.isNotEmpty) {
   Widget _buildDealsSection() {
     return GestureDetector(
       onTap: () {
-        Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const DealsScreen()));
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (ctx) => const DealsScreen()));
       },
       child: SizedBox(
         height: 100,
@@ -487,7 +472,7 @@ if (from.isNotEmpty && to.isNotEmpty) {
               bottom: 15,
               right: 10,
               child: Container(
-                width: MediaQuery.sizeOf(context).width/1.1,
+                width: MediaQuery.sizeOf(context).width / 1.1,
                 height: 70,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
@@ -496,8 +481,16 @@ if (from.isNotEmpty && to.isNotEmpty) {
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    SizedBox(width: 10,),
-                    Text('Deals',style: TextStyle(fontSize: 24,fontWeight: FontWeight.bold,color: Colors.white),),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Text(
+                      'Deals',
+                      style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white),
+                    ),
                   ],
                 ),
               ),

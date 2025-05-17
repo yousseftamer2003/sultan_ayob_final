@@ -38,22 +38,10 @@ class _PointsItemsScreenState extends State<PointsItemsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final businessSetupProvider = Provider.of<BusinessSetupController>(context, listen: false);
-String from = businessSetupProvider.from;
-String to = businessSetupProvider.to;
+    final businessSetupProvider =
+        Provider.of<BusinessSetupController>(context, listen: false);
+    bool isClosed = businessSetupProvider.businessSetup?.openFlag == false;
 
-
-bool isClosed = false;
-
-if (from.isNotEmpty && to.isNotEmpty) {
-  final now = DateTime.now();
-  final fromTime = DateTime(now.year, now.month, now.day,
-      int.parse(from.split(':')[0]), int.parse(from.split(':')[1]));
-  final toTime = DateTime(now.year, now.month, now.day,
-      int.parse(to.split(':')[0]), int.parse(to.split(':')[1]));
-
-  isClosed = now.isAfter(fromTime) && now.isBefore(toTime);
-}
     final profileProvider = Provider.of<GetProfileProvider>(context);
     final int mypoints = profileProvider.userProfile?.points ?? 0;
 
@@ -164,16 +152,16 @@ if (from.isNotEmpty && to.isNotEmpty) {
             ),
             if (isClosed) ...[
               GestureDetector(
-                onTap: () {}, // Blocks taps on the underlying widgets
+                onTap: () {}, 
                 child: Container(
                   color:
-                      Colors.black.withOpacity(0.6), // Semi-transparent overlay
+                      Colors.black.withOpacity(0.6), 
                   width: double.infinity,
                   height: double.infinity,
                 ),
               ),
               Center(
-                child: buildClosedWrap(context, from, to),
+                child: buildClosedWrap(context),
               ),
             ],
           ],

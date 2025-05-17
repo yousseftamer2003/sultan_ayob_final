@@ -117,9 +117,9 @@ class _ExtrasBottomSheetState extends State<ExtrasBottomSheet> {
                                   ],
                                 ),
                               ),
-                              Text(
+                              const Text(
                                 '+}',
-                                style: const TextStyle(color: Colors.grey),
+                                style: TextStyle(color: Colors.grey),
                               ),
                             ],
                           ),

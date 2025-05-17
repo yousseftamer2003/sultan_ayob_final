@@ -8,12 +8,6 @@ class BusinessSetupController with ChangeNotifier {
   BusinessSetup? _businessSetup;
   BusinessSetup? get businessSetup => _businessSetup;
 
-  String _from = '';
-  String get from => _from;
-
-  String _to = '';
-  String get to => _to;
-
   Future<void> fetchBusinessSetup(BuildContext context) async {
     try {
       final response = await http.get(
@@ -26,13 +20,7 @@ class BusinessSetupController with ChangeNotifier {
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
         _businessSetup = BusinessSetup.fromJson(responseData);
-        if(_businessSetup!.timeSlot.dailySlots.isEmpty){
-          _from = '';
-          _to = '';
-        }else{
-          _from = _businessSetup!.timeSlot.dailySlots[0]['from'];
-        _to = _businessSetup!.timeSlot.dailySlots[0]['to'];
-        }
+
         notifyListeners();
       } else {
         log('Failed to fetch business setup with StatusCode: ${response.statusCode}');

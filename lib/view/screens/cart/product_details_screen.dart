@@ -4,7 +4,6 @@ import 'package:food2go_app/controllers/Auth/login_provider.dart';
 import 'package:food2go_app/controllers/product_provider.dart';
 import 'package:food2go_app/models/categories/product_model.dart';
 import 'package:food2go_app/view/screens/cart/widgets/addon_selection_widget.dart';
-import 'package:food2go_app/view/screens/cart/widgets/extras_bottom_sheet.dart';
 import 'package:food2go_app/view/widgets/show_top_snackbar.dart';
 import 'package:provider/provider.dart';
 
@@ -273,10 +272,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       },
                     ),
                     const SizedBox(height: 16),
-                    Row(
+                    const Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
+                        Text(
                           "Ingredients:",
                           style: TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold),
