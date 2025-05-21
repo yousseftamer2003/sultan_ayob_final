@@ -18,7 +18,8 @@ class _PopularFoodScreenState extends State<PopularFoodScreen> {
   void initState() {
     super.initState();
     final userId = Provider.of<LoginProvider>(context, listen: false).id;
-    Provider.of<ProductProvider>(context, listen: false).fetchProducts(context,id: userId);
+    Provider.of<ProductProvider>(context, listen: false)
+        .fetchProducts(context, userId: userId);
   }
 
   @override

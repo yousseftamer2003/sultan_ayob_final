@@ -4,6 +4,7 @@ class UserProfile {
   final String? lName;
   final String? email;
   final String? phone;
+  final String? phone2;
   final String? image;
   final int? wallet;
   final int? status;
@@ -25,6 +26,7 @@ class UserProfile {
     this.lName,
     this.email,
     this.phone,
+    this.phone2,
     this.image,
     this.wallet,
     this.status,
@@ -48,6 +50,7 @@ class UserProfile {
       lName: json['l_name'],
       email: json['email'],
       phone: json['phone'],
+      phone2: json['phone_2'],
       image: json['image'],
       wallet: json['wallet'],
       status: json['status'],
@@ -55,7 +58,8 @@ class UserProfile {
       createdAt: json['created_at'],
       updatedAt: json['updated_at'],
       points: json['points'],
-      address: json['address'] != null ? List<dynamic>.from(json['address']) : null,
+      address:
+          json['address'] != null ? List<dynamic>.from(json['address']) : null,
       bio: json['bio'],
       code: json['code'],
       role: json['role'],
@@ -72,6 +76,7 @@ class UserProfile {
       'l_name': lName,
       'email': email,
       'phone': phone,
+      'phone_2': phone2,
       'image': image,
       'wallet': wallet,
       'status': status,

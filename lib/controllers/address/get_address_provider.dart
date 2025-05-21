@@ -15,26 +15,49 @@ class AddressProvider with ChangeNotifier {
   List<Address> _addresses = [];
   List<Zone> _zones = [];
   List<BranchStarter> _branchStarters = [];
+
   bool _isLoading = false;
   String? _errorMessage;
 
   int? selectedAddressId;
   int? selectedBranchId;
+  double _selectedZonePrice = 0.0;
 
   List<Address> get addresses => _addresses;
   List<Zone> get zones => _zones;
   List<BranchStarter> get branchStarters => _branchStarters;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
+  double get selectedZonePrice => _selectedZonePrice;
+
+  void selectAddress(int addressId) {
+    selectedAddressId = addressId;
+
+    try {
+      final selectedAddress = _addresses.firstWhere(
+        (address) => address.id == addressId,
+      );
+      _selectedZonePrice = selectedAddress.zone.price;
+    } catch (e) {
+      _selectedZonePrice = 0.0;
+      log('Error selecting address: $e');
+    }
+    notifyListeners();
+  }
+
+  void resetSelectedAddresses() {
+    _selectedZonePrice = 0.0;
+    notifyListeners();
+  }
 
   Future<void> fetchAddresses(BuildContext context) async {
     _isLoading = true;
     notifyListeners();
 
-    final loginProvider = Provider.of<LoginProvider>(context, listen: false);
-    final String token = loginProvider.token!;
-
     try {
+      final loginProvider = Provider.of<LoginProvider>(context, listen: false);
+      final String token = loginProvider.token ?? '';
+
       final response = await http.get(
         Uri.parse('https://$domain/customer/address'),
         headers: {
@@ -47,31 +70,36 @@ class AddressProvider with ChangeNotifier {
         final data = json.decode(response.body);
 
         _addresses = (data['addresses'] ?? [])
-            .map<Address>((addressJson) => Address.fromJson(addressJson))
+            .map<Address>((item) => Address.fromJson(item))
             .toList();
 
         _zones = (data['zones'] ?? [])
-            .map<Zone>((zoneJson) => Zone.fromJson(zoneJson))
+            .map<Zone>((item) => Zone.fromJson(item))
             .toList();
 
         _branchStarters = (data['branches'] ?? [])
-            .map<BranchStarter>(
-                (branchJson) => BranchStarter.fromJson(branchJson))
+            .map<BranchStarter>((item) => BranchStarter.fromJson(item))
             .toList();
 
-        log(_branchStarters.toString());
-        notifyListeners();
+        _errorMessage = null;
       } else {
         _errorMessage = 'Failed to load addresses and zones';
-        log('Failed to load addresses and zones: ${response.statusCode}');
+        log('Error ${response.statusCode}: ${response.body}');
       }
     } catch (error) {
       _errorMessage = 'An error occurred: $error';
-      log('an error occurred: $error');
+      log('Exception in fetchAddresses: $error');
     } finally {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  /// Clear selected address (optional: call on logout)
+  void clearSelectedAddress() {
+    selectedAddressId = null;
+    _selectedZonePrice = 0.0;
+    notifyListeners();
   }
 
   Future<void> addAddress({
@@ -115,7 +143,7 @@ class AddressProvider with ChangeNotifier {
 
       if (response.statusCode == 200) {
         log(response.body);
-        await fetchAddresses(context); // Refresh the addresses
+        await fetchAddresses(context);
         showTopSnackBar(context, 'Your address was saved successfully.',
             Icons.check, maincolor, const Duration(seconds: 2));
         Navigator.pop(context);
@@ -129,7 +157,6 @@ class AddressProvider with ChangeNotifier {
     } finally {
       _isLoading = false;
       if (context.mounted) {
-        // Check if the context is still mounted
         notifyListeners();
       }
     }

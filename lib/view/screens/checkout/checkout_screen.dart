@@ -19,10 +19,14 @@ class CheckoutScreen extends StatefulWidget {
       {super.key,
       required this.cartProducts,
       required this.totalTax,
-      required this.totalDiscount});
+      required this.totalDiscount,
+      this.deliveryFee,
+      this.totalPrice});
   final List<Product> cartProducts;
   final double totalTax;
   final double totalDiscount;
+  final double? deliveryFee;
+  final double? totalPrice;
 
   @override
   State<CheckoutScreen> createState() => _CheckoutScreenState();
@@ -32,7 +36,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   String? selectedPaymentMethod;
   int? selectedScheduleId;
   bool deliveryNow = true;
-  double zonePrice = 0.0;
   bool isChosen = false;
   final TextEditingController noteController = TextEditingController();
   final TextEditingController deliveryTimeController = TextEditingController();
@@ -52,7 +55,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       Provider.of<ScheduleProvider>(context, listen: false)
           .fetchScheduleList()
           .then((_) {
-        // Set the default delivery now option when schedule list is loaded
         _setDefaultDeliveryNowOption();
       });
     });
@@ -62,13 +64,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final scheduleProvider =
         Provider.of<ScheduleProvider>(context, listen: false);
     if (scheduleProvider.scheduleList.isNotEmpty) {
-      // Find the delivery now option in the schedule list
       final deliveryNowOption = scheduleProvider.scheduleList.firstWhere(
         (item) =>
             item.name.toLowerCase().contains('now') ||
             item.name.toLowerCase().contains('immediate'),
-        orElse: () => scheduleProvider.scheduleList
-            .first, // Fallback to first option if 'now' is not found
+        orElse: () => scheduleProvider.scheduleList.first,
       );
 
       setState(() {
@@ -116,80 +116,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     const SizedBox(height: 10),
                     _buildNoteInputField(),
                     const SizedBox(height: 30),
+                    _buildOrderSummary(),
+                    const SizedBox(height: 20),
                     _buildPlaceOrderButton(context),
                     const SizedBox(height: 30),
                   ],
                 ),
               ),
             ),
-    );
-  }
-
-  Widget _buildTimeScheduleButtons(ScheduleProvider scheduleProvider) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 8.0, bottom: 8.0),
-          child: Text(
-            "delivery time: ${scheduleProvider.scheduleList.firstWhere((item) => item.id == selectedScheduleId).name}",
-            style: const TextStyle(
-              fontWeight: FontWeight.w500,
-              fontSize: 16,
-            ),
-          ),
-        ),
-        Wrap(
-          spacing: 8.0,
-          runSpacing: 12.0,
-          children: scheduleProvider.scheduleList.map((scheduleItem) {
-            final isSelected = selectedScheduleId == scheduleItem.id;
-            final isDeliveryNowOption =
-                scheduleItem.name.toLowerCase().contains('now') ||
-                    scheduleItem.name.toLowerCase().contains('immediate');
-
-            return InkWell(
-              onTap: () {
-                setState(() {
-                  selectedScheduleId = scheduleItem.id;
-                  deliveryNow = isDeliveryNowOption;
-                });
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 12.0,
-                ),
-                decoration: BoxDecoration(
-                  color: isSelected ? maincolor : Colors.grey[200],
-                  borderRadius: BorderRadius.circular(8.0),
-                  border: Border.all(
-                    color: isSelected ? maincolor : Colors.grey[300]!,
-                    width: 1.5,
-                  ),
-                ),
-                child: Text(
-                  scheduleItem.name,
-                  style: TextStyle(
-                    color: isSelected ? Colors.white : Colors.black87,
-                    fontWeight:
-                        isSelected ? FontWeight.bold : FontWeight.normal,
-                    fontSize: 14,
-                  ),
-                ),
-              ),
-            );
-          }).toList(),
-        ),
-        if (scheduleProvider.error != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 8.0),
-            child: Text(
-              scheduleProvider.error!,
-              style: const TextStyle(color: Colors.red),
-            ),
-          ),
-      ],
     );
   }
 
@@ -284,10 +218,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             paymentMethodId: selectedPayment.id,
             receipt: receiptBase64,
             notes: noteController.text,
-            zonePrice: zonePrice,
+            zonePrice: widget.deliveryFee ?? 0,
             totalDiscount: widget.totalDiscount,
             secheduleslotid: selectedScheduleId,
+            confirmOrder: 0,
           );
+
           setState(() {
             isLoading = false;
           });
@@ -313,7 +249,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 color: Colors.white,
               )
             : Text(
-                S.of(context).place_order,
+                "${S.of(context).place_order} - ${widget.totalPrice != null ? widget.totalPrice!.toStringAsFixed(2) : '0.00'}",
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -321,6 +257,143 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 ),
               ),
       ),
+    );
+  }
+
+  Widget _buildOrderSummary() {
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(12.0),
+        border: Border.all(color: Colors.grey[300]!),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionTitle(S.of(context).order_summary),
+          const SizedBox(height: 16),
+          _buildOrderSummaryRow(
+            S.of(context).total,
+            widget.totalPrice != null
+                ? (widget.totalPrice! -
+                        widget.totalTax +
+                        widget.totalDiscount -
+                        (widget.deliveryFee ?? 0))
+                    .toStringAsFixed(2)
+                : '0.00',
+          ),
+          if (widget.deliveryFee != null && widget.deliveryFee! > 0)
+            _buildOrderSummaryRow(
+              S.of(context).delivery_fee,
+              widget.deliveryFee!.toStringAsFixed(2),
+            ),
+          const Divider(thickness: 1),
+          _buildOrderSummaryRow(
+            S.of(context).total,
+            widget.totalPrice != null
+                ? widget.totalPrice!.toStringAsFixed(2)
+                : '0.00',
+            isBold: true,
+            fontSize: 18,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOrderSummaryRow(String label, String value,
+      {bool isBold = false, double fontSize = 16, Color? textColor}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: fontSize,
+              fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: fontSize,
+              fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+              color: textColor ?? Colors.black,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTimeScheduleButtons(ScheduleProvider scheduleProvider) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 8.0, bottom: 8.0),
+          child: Text(
+            "delivery time: ${scheduleProvider.scheduleList.firstWhere((item) => item.id == selectedScheduleId).name}",
+            style: const TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 16,
+            ),
+          ),
+        ),
+        Wrap(
+          spacing: 8.0,
+          runSpacing: 12.0,
+          children: scheduleProvider.scheduleList.map((scheduleItem) {
+            final isSelected = selectedScheduleId == scheduleItem.id;
+            final isDeliveryNowOption =
+                scheduleItem.name.toLowerCase().contains('now') ||
+                    scheduleItem.name.toLowerCase().contains('immediate');
+
+            return InkWell(
+              onTap: () {
+                setState(() {
+                  selectedScheduleId = scheduleItem.id;
+                  deliveryNow = isDeliveryNowOption;
+                });
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 12.0,
+                ),
+                decoration: BoxDecoration(
+                  color: isSelected ? maincolor : Colors.grey[200],
+                  borderRadius: BorderRadius.circular(8.0),
+                  border: Border.all(
+                    color: isSelected ? maincolor : Colors.grey[300]!,
+                    width: 1.5,
+                  ),
+                ),
+                child: Text(
+                  scheduleItem.name,
+                  style: TextStyle(
+                    color: isSelected ? Colors.white : Colors.black87,
+                    fontWeight:
+                        isSelected ? FontWeight.bold : FontWeight.normal,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+        if (scheduleProvider.error != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Text(
+              scheduleProvider.error!,
+              style: const TextStyle(color: Colors.red),
+            ),
+          ),
+      ],
     );
   }
 

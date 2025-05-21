@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:food2go_app/constants/colors.dart';
 import 'package:food2go_app/controllers/Auth/login_provider.dart';
+import 'package:food2go_app/controllers/address/get_address_provider.dart';
 import 'package:food2go_app/controllers/profile/get_profile_provider.dart';
 import 'package:food2go_app/generated/l10n.dart';
 import 'package:food2go_app/view/screens/Auth/login_screen.dart';
@@ -20,7 +21,6 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-
   @override
   Widget build(BuildContext context) {
     final profileProvider = Provider.of<GetProfileProvider>(context);
@@ -38,106 +38,128 @@ class _ProfileScreenState extends State<ProfileScreen> {
         body: profileProvider.isLoading
             ? const Center(child: CircularProgressIndicator())
             : authServices.token == null
-                ?  Center(child: Column(
-                  mainAxisAlignment:  MainAxisAlignment.center,
-                  children: [
-                    const Text("Login to view profile"),
-                    const SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const LoginScreen(),
+                ? Center(
+                    child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text("Login to view profile"),
+                      const SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const LoginScreen(),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: maincolor,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: maincolor,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
                         ),
+                        child: const Text('Login'),
                       ),
-                      child: const Text('Login'),
-                    ),
-                  ],
-                ))
+                    ],
+                  ))
                 : Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      children: [
-                        Text(
-                          '${S.of(context).Welcome} ${profileProvider.userProfile!.name}',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          CircleAvatar(
+                            radius: 40,
+                            backgroundImage: NetworkImage(
+                                profileProvider.userProfile!.imageLink ??
+                                    'assets/images/delivery.png'),
+                            backgroundColor: Colors.grey[200],
+                            onBackgroundImageError: (_, __) =>
+                                const Icon(Icons.error),
                           ),
-                        ),
-                        const SizedBox(height: 20),
-                        _buildProfileOption(
-                          icon: Icons.person_outline,
-                          label: S.of(context).personal_info,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const PersonalInfo(),
-                              ),
-                            );
-                          },
-                        ),
-                        _buildProfileOption(
-                          icon: Icons.location_on_outlined,
-                          label: S.of(context).addresses,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const AddressScreen(),
-                              ),
-                            );
-                          },
-                        ),
-                        _buildProfileOption(
-                          icon: Icons.shopping_bag_outlined,
-                          label: S.of(context).my_orders,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const MyOrderScreen(),
-                              ),
-                            );
-                          },
-                        ),
-                        _buildProfileOption(
-                          icon: Icons.language,
-                          label: S.of(context).select_language,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const SelectLangScreen(),
-                              ),
-                            );
-                          },
-                        ),
-                        _buildProfileOption(
-                          icon: Icons.logout,
-                          label: S.of(context).log_out,
-                          onTap: () {
-                            Provider.of<LoginProvider>(context,listen: false).logout(context);
-                          },
-                        ),
-                        _buildProfileOption(
-                          icon: Icons.delete_outline,
-                          label: S.of(context).delete_account,
-                          onTap: () {
-                            Provider.of<LoginProvider>(context,listen: false).deleteAccount(context);
-                          },
-                        ),
-                      ],
+                          const SizedBox(height: 12),
+                          Text(
+                            '${S.of(context).Welcome} ${profileProvider.userProfile!.name}',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          _buildProfileOption(
+                            icon: Icons.person_outline,
+                            label: S.of(context).personal_info,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const PersonalInfo(),
+                                ),
+                              );
+                            },
+                          ),
+                          _buildProfileOption(
+                            icon: Icons.location_on_outlined,
+                            label: S.of(context).addresses,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const AddressScreen(),
+                                ),
+                              );
+                            },
+                          ),
+                          _buildProfileOption(
+                            icon: Icons.shopping_bag_outlined,
+                            label: S.of(context).my_orders,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const MyOrderScreen(),
+                                ),
+                              );
+                            },
+                          ),
+                          _buildProfileOption(
+                            icon: Icons.language,
+                            label: S.of(context).select_language,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const SelectLangScreen(),
+                                ),
+                              );
+                            },
+                          ),
+                          _buildProfileOption(
+                            icon: Icons.logout,
+                            label: S.of(context).log_out,
+                            onTap: () {
+                              final addressProvider =
+                                  Provider.of<AddressProvider>(context,
+                                      listen: false);
+                              addressProvider.selectedAddressId = null;
+                              addressProvider.selectedBranchId = null;
+                              addressProvider.resetSelectedAddresses();
+                              Provider.of<LoginProvider>(context, listen: false)
+                                  .logout(context);
+                            },
+                          ),
+                          _buildProfileOption(
+                            icon: Icons.delete_outline,
+                            label: S.of(context).delete_account,
+                            onTap: () {
+                              Provider.of<LoginProvider>(context, listen: false)
+                                  .deleteAccount(context);
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   ),
       ),

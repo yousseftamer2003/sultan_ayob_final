@@ -7,20 +7,29 @@ import 'package:flutter/material.dart';
 class BusinessSetupController with ChangeNotifier {
   BusinessSetup? _businessSetup;
   BusinessSetup? get businessSetup => _businessSetup;
-
-  Future<void> fetchBusinessSetup(BuildContext context) async {
+  Future<void> fetchBusinessSetup(BuildContext context,
+      {int? branchId, int? addressId}) async {
     try {
+      String url = 'https://sultanayubbcknd.food2go.online/api/business_setup';
+
+      if (branchId != null) {
+        url = '$url?branch_id=$branchId';
+      } else if (addressId != null) {
+        url = '$url?address_id=$addressId';
+      }
+
       final response = await http.get(
-        Uri.parse('https://sultanayubbcknd.food2go.online/api/business_setup'),
+        Uri.parse(url),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
       );
+      log(url);
+
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
         _businessSetup = BusinessSetup.fromJson(responseData);
-
         notifyListeners();
       } else {
         log('Failed to fetch business setup with StatusCode: ${response.statusCode}');

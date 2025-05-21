@@ -5,11 +5,13 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:food2go_app/controllers/Auth/login_provider.dart';
+import 'package:food2go_app/controllers/address/get_address_provider.dart';
 import 'package:food2go_app/controllers/business_setup_controller.dart';
 import 'package:food2go_app/controllers/notification_controller.dart';
 import 'package:food2go_app/generated/l10n.dart';
 import 'package:food2go_app/view/screens/categories/screens/categories_screen.dart';
 import 'package:food2go_app/view/screens/discount/discount_screen.dart';
+import 'package:food2go_app/view/screens/onboarding_screens/delivery_or_pickup_screen.dart';
 import 'package:food2go_app/view/screens/popular_food/screens/popular_food_screen.dart';
 import 'package:food2go_app/view/screens/popular_food/widget/popular_food_widget.dart';
 import 'package:food2go_app/view/screens/tabs_screens/screens/category_details_screen.dart';
@@ -22,7 +24,6 @@ import 'package:food2go_app/constants/colors.dart';
 import 'package:food2go_app/controllers/categories/categories_provider.dart';
 import 'package:food2go_app/controllers/product_provider.dart';
 import 'package:food2go_app/controllers/profile/get_profile_provider.dart';
-import 'package:food2go_app/view/screens/points/points_items_screen.dart';
 import '../../../../controllers/banners/banners_provider.dart';
 import '../../../../models/banners/banners_model.dart';
 import '../../../../models/categories/categories_model.dart';
@@ -42,10 +43,17 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     final userId = Provider.of<LoginProvider>(context, listen: false).id;
+    Provider.of<AddressProvider>(context, listen: false);
     Provider.of<CategoriesProvider>(context, listen: false)
         .fetchCategories(context);
-    Provider.of<ProductProvider>(context, listen: false)
-        .fetchProducts(context, id: userId);
+    Provider.of<ProductProvider>(context, listen: false).fetchProducts(
+      context,
+      userId: userId,
+      addressId: Provider.of<AddressProvider>(context, listen: false)
+          .selectedAddressId,
+      branchId:
+          Provider.of<AddressProvider>(context, listen: false).selectedBranchId,
+    );
     Provider.of<ProductProvider>(context, listen: false).loadCart();
     Provider.of<BannerProvider>(context, listen: false).fetchBanners(context);
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -60,9 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final businessSetupProvider =
         Provider.of<BusinessSetupController>(context, listen: false);
-
     bool isClosed = businessSetupProvider.businessSetup?.openFlag == false;
-
     return WillPopScope(
       onWillPop: () async {
         return false;
@@ -96,10 +102,9 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             if (isClosed) ...[
               GestureDetector(
-                onTap: () {}, 
+                onTap: () {},
                 child: Container(
-                  color:
-                      Colors.black.withOpacity(0.6), 
+                  color: Colors.black.withOpacity(0.6),
                   width: double.infinity,
                   height: double.infinity,
                 ),
@@ -125,52 +130,35 @@ class _HomeScreenState extends State<HomeScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        // SizedBox(width: langeServices.selectedLang == 'ar' ? 180 : 90),
-        Consumer<GetProfileProvider>(
-          builder: (context, profileProvider, child) {
-            final points = profileProvider.userProfile?.points ?? 0;
-            return GestureDetector(
-              onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (ctx) => const PointsItemsScreen(),
-                ));
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                height: 44,
-                margin: const EdgeInsets.symmetric(
-                  horizontal: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(32),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        points.toString(),
-                        style: const TextStyle(
-                          color: maincolor,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w400,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const SizedBox(width: 5),
-                    SvgPicture.asset(
-                      'assets/images/coin.svg',
-                      color: maincolor,
-                      width: 10,
-                      height: 20,
-                    ),
-                  ],
-                ),
+        GestureDetector(
+          onTap: () async {
+            final addressProvider =
+                Provider.of<AddressProvider>(context, listen: false);
+            final productProvider =
+                Provider.of<ProductProvider>(context, listen: false);
+            addressProvider.selectedAddressId = null;
+            addressProvider.selectedBranchId = null;
+            addressProvider.resetSelectedAddresses();
+            await productProvider.clearCart();
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const DeliveryOrPickupScreen(),
               ),
             );
           },
+          child: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.share_location,
+              color: maincolor,
+              size: 40,
+            ),
+          ),
         ),
       ],
     );

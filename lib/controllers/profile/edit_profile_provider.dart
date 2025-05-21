@@ -13,29 +13,26 @@ class EditProfileProvider with ChangeNotifier {
     required String lastName,
     required String email,
     required String phone,
-    required String bio,
-    required String address,
+    required String phone2,
     String? password,
     String? imagePath,
   }) async {
-    const String url = 'https://sultanayubbcknd.food2go.online/customer/profile/update';
+    const String url =
+        'https://sultanayubbcknd.food2go.online/customer/profile/update';
     final loginProvider = Provider.of<LoginProvider>(context, listen: false);
     final String token = loginProvider.token!;
 
     try {
-      // Prepare request fields with non-empty data
       final Map<String, String> fields = {};
       if (firstName.isNotEmpty) fields['f_name'] = firstName;
       if (lastName.isNotEmpty) fields['l_name'] = lastName;
       if (email.isNotEmpty) fields['email'] = email;
       if (phone.isNotEmpty) fields['phone'] = phone;
-      if (bio.isNotEmpty) fields['bio'] = bio;
-      if (address.isNotEmpty) fields['address'] = address;
+      if (phone.isNotEmpty) fields['phone_2'] = phone2;
       if (password != null && password.isNotEmpty) {
         fields['password'] = password;
       }
 
-      // Prepare request with image (if provided)
       var request = http.MultipartRequest('POST', Uri.parse(url))
         ..fields.addAll(fields)
         ..headers.addAll({
@@ -48,10 +45,7 @@ class EditProfileProvider with ChangeNotifier {
             .add(await http.MultipartFile.fromPath('image', imagePath));
       }
 
-      // Send request and get response
       final response = await request.send();
-
-      // Process response
       if (response.statusCode == 200) {
         final responseData = await response.stream.bytesToString();
         print('Profile updated successfully: $responseData');

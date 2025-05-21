@@ -97,8 +97,7 @@ class Zone {
       updatedAt: json['updated_at'] != null
           ? DateTime.parse(json['updated_at'])
           : null,
-      zone: json['zone'] ??
-          '',
+      zone: json['zone'] ?? '',
     );
   }
 

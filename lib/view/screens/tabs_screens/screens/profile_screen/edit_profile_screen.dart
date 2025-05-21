@@ -22,10 +22,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
-  final TextEditingController bioController = TextEditingController();
-  final TextEditingController addressController = TextEditingController();
+  final TextEditingController phone2Controller = TextEditingController();
 
-  File? _selectedImage; // To store the selected image
+  File? _selectedImage;
+  bool _dataInitialized = false;
 
   Future<void> _pickImageFromCamera() async {
     final picker = ImagePicker();
@@ -54,19 +54,53 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         .fetchUserProfile(context);
   }
 
+  void _initializeFormData() {
+    final profilesProvider =
+        Provider.of<GetProfileProvider>(context, listen: false);
+    if (profilesProvider.userProfile != null && !_dataInitialized) {
+      fnameController.text = profilesProvider.userProfile!.fName ?? '';
+      lnameController.text = profilesProvider.userProfile!.lName ?? '';
+      emailController.text = profilesProvider.userProfile!.email ?? '';
+      phoneController.text = profilesProvider.userProfile!.phone ?? '';
+      passController.text = profilesProvider.userProfile!.phone2 ?? '';
+      passController.text = '';
+
+      setState(() {
+        _dataInitialized = true;
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _fetchUserProfile();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _fetchUserProfile();
+      _initializeFormData();
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _initializeFormData();
+  }
+
+  @override
+  void dispose() {
+    fnameController.dispose();
+    lnameController.dispose();
+    emailController.dispose();
+    passController.dispose();
+    phoneController.dispose();
+    phone2Controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final profilesProvider = Provider.of<GetProfileProvider>(context);
 
-    // Show loading indicator until userProfile is available
     if (profilesProvider.userProfile == null) {
       return Scaffold(
         appBar: buildAppBar(context, 'Edit profile'),
@@ -74,152 +108,159 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       );
     }
 
+    if (!_dataInitialized) {
+      _initializeFormData();
+    }
+
     return WillPopScope(
       onWillPop: () async {
-        await _fetchUserProfile(); // Fetch the user profile data when popping the screen
-        return true; // Allow the pop action
+        await _fetchUserProfile();
+        return true;
       },
       child: Scaffold(
         appBar: buildAppBar(context, 'Edit profile'),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(15.0),
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(15),
-                    child: Row(
-                      children: [
-                        Stack(
-                          children: [
-                            CircleAvatar(
-                              radius: 40,
-                              backgroundImage: _selectedImage != null
-                                  ? FileImage(_selectedImage!) as ImageProvider
-                                  : (profilesProvider.userProfile?.imageLink != null
-                                      ? NetworkImage(profilesProvider.userProfile!.imageLink!)
-                                      : const AssetImage('assets/default_avatar.png')), // Fallback image if no image is found
-                            ),
-                            Positioned(
-                              right: 0,
-                              bottom: 0,
-                              child: CircleAvatar(
-                                backgroundColor: maincolor,
-                                radius: 16,
-                                child: InkWell(
-                                  onTap: () {
-                                    showModalBottomSheet(
-                                      context: context,
-                                      builder: (_) {
-                                        return Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            ListTile(
-                                              leading: const Icon(Icons.camera_alt),
-                                              title: const Text('Take a photo'),
-                                              onTap: () {
-                                                Navigator.of(context).pop();
-                                                _pickImageFromCamera();
-                                              },
-                                            ),
-                                            ListTile(
-                                              leading: const Icon(Icons.photo),
-                                              title: const Text('Choose from gallery'),
-                                              onTap: () {
-                                                Navigator.of(context).pop();
-                                                _pickImageFromGallery();
-                                              },
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    );
-                                  },
-                                  child: const Icon(Icons.edit, color: Colors.white, size: 16),
-                                ),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(15),
+                  child: Row(
+                    children: [
+                      Stack(
+                        children: [
+                          CircleAvatar(
+                            radius: 40,
+                            backgroundImage: _selectedImage != null
+                                ? FileImage(_selectedImage!) as ImageProvider
+                                : (profilesProvider.userProfile?.imageLink !=
+                                        null
+                                    ? NetworkImage(profilesProvider
+                                        .userProfile!.imageLink!)
+                                    : const AssetImage(
+                                        'assets/default_avatar.png')),
+                          ),
+                          Positioned(
+                            right: 0,
+                            bottom: 0,
+                            child: CircleAvatar(
+                              backgroundColor: maincolor,
+                              radius: 16,
+                              child: InkWell(
+                                onTap: () {
+                                  showModalBottomSheet(
+                                    context: context,
+                                    builder: (_) {
+                                      return Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          ListTile(
+                                            leading:
+                                                const Icon(Icons.camera_alt),
+                                            title: const Text('Take a photo'),
+                                            onTap: () {
+                                              Navigator.of(context).pop();
+                                              _pickImageFromCamera();
+                                            },
+                                          ),
+                                          ListTile(
+                                            leading: const Icon(Icons.photo),
+                                            title: const Text(
+                                                'Choose from gallery'),
+                                            onTap: () {
+                                              Navigator.of(context).pop();
+                                              _pickImageFromGallery();
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
+                                child: const Icon(Icons.edit,
+                                    color: Colors.white, size: 16),
                               ),
                             ),
-                          ],
-                        ),
-                        const SizedBox(width: 30),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              profilesProvider.userProfile?.name ?? 'Name not available',
-                              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              profilesProvider.userProfile?.bio ?? 'Bio not available',
-                              style: const TextStyle(color: Colors.grey),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  _buildTextField('First Name', fnameController),
-                  const SizedBox(height: 16),
-                  _buildTextField('Last Name', lnameController),
-                  const SizedBox(height: 16),
-                  _buildTextField('Email', emailController),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: passController,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      labelStyle: const TextStyle(color: Colors.black45),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                        borderSide: BorderSide.none,
+                          ),
+                        ],
                       ),
-                      filled: true,
-                      fillColor: Colors.grey[200],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  _buildTextField('Phone', phoneController),
-                  const SizedBox(height: 16),
-                  _buildTextField('Bio', bioController),
-                  const SizedBox(height: 16),
-                  _buildTextField('Address', addressController),
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: () async {
-                      // Call provider method to save profile
-                      await Provider.of<EditProfileProvider>(context, listen: false)
-                          .postProfileUpdate(
-                        context,
-                        firstName: fnameController.text,
-                        lastName: lnameController.text,
-                        email: emailController.text,
-                        phone: phoneController.text,
-                        bio: bioController.text,
-                        address: addressController.text,
-                        password: passController.text,
-                        imagePath: _selectedImage?.path,
-                      );
-                      // Refresh user profile data after update
-                      await _fetchUserProfile();
-                      _clearTextFields();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: maincolor,
-                      minimumSize: const Size(double.infinity, 50),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                      const SizedBox(width: 30),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${profilesProvider.userProfile?.fName ?? ''} ${profilesProvider.userProfile?.lName ?? ''}',
+                            style: const TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
+                        ],
                       ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+                _buildTextField('First Name', fnameController),
+                const SizedBox(height: 16),
+                _buildTextField('Last Name', lnameController),
+                const SizedBox(height: 16),
+                _buildTextField('Email', emailController),
+                const SizedBox(height: 16),
+                _buildTextField('Phone', phoneController),
+                const SizedBox(height: 16),
+                _buildTextField('Phone 2', phone2Controller),
+                const SizedBox(height: 24),
+                TextField(
+                  controller: passController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    hintText: 'Leave blank to keep current password',
+                    labelStyle: const TextStyle(color: Colors.black45),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                      borderSide: BorderSide.none,
                     ),
-                    child: const Text(
-                      'Save',
-                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    filled: true,
+                    fillColor: Colors.grey[200],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () async {
+                    await Provider.of<EditProfileProvider>(context,
+                            listen: false)
+                        .postProfileUpdate(
+                      context,
+                      firstName: fnameController.text,
+                      lastName: lnameController.text,
+                      email: emailController.text,
+                      phone: phoneController.text,
+                      password: passController.text.isNotEmpty
+                          ? passController.text
+                          : null,
+                      phone2: phoneController.text,
+                      imagePath: _selectedImage?.path,
+                    );
+                    await _fetchUserProfile();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text('Profile updated successfully')),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: maincolor,
+                    minimumSize: const Size(double.infinity, 50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                ],
-              ),
+                  child: const Text(
+                    'Save',
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -227,7 +268,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  // Helper method to build text fields
   Widget _buildTextField(String label, TextEditingController controller) {
     return TextField(
       controller: controller,
@@ -242,16 +282,5 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         fillColor: Colors.grey[200],
       ),
     );
-  }
-
-  // Helper method to clear text fields after save
-  void _clearTextFields() {
-    fnameController.clear();
-    lnameController.clear();
-    emailController.clear();
-    passController.clear();
-    phoneController.clear();
-    bioController.clear();
-    addressController.clear();
   }
 }

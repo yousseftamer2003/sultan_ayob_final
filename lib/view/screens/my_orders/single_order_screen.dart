@@ -94,18 +94,26 @@ class SingleOrderScreen extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             Text(
-              'Order Date: ${_formatDate(order.date)}',
+              'Order Date: ${_formatDateTime(order.orderDate, order.date)}',
               style: TextStyle(color: Colors.grey[600], fontSize: 14),
             ),
-            if (order.orderDate != null && order.orderDate != order.date)
-              Text(
-                'Delivery Date: ${_formatDate(order.orderDate)}',
-                style: TextStyle(color: Colors.grey[600], fontSize: 14),
-              ),
           ],
         ),
       ),
     );
+  }
+
+  String _formatDateTime(String? date, String? time) {
+    if (date == null || time == null || date.isEmpty || time.isEmpty) {
+      return 'N/A';
+    }
+
+    try {
+      final combined = DateTime.parse('$date $time');
+      return DateFormat('MMM dd, yyyy - hh:mm a').format(combined);
+    } catch (e) {
+      return '$date $time';
+    }
   }
 
   Widget _buildOrderItemsSection(BuildContext context) {
@@ -147,7 +155,6 @@ class SingleOrderScreen extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final orderDetail = orderDetails[index];
 
-                      // Process products
                       final productItems =
                           orderDetail.product?.map((productWrapper) {
                                 final product = productWrapper.product;
@@ -242,11 +249,12 @@ class SingleOrderScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             _buildDetailRow('Order Type', order.orderType ?? 'N/A'),
-            _buildDetailRow('Address', order.address ?? 'N/A'),
+            if (order.orderType == 'take_away')
+              _buildDetailRow('Branch Name', order.branchName ?? 'N/A'),
+            if (order.orderType == 'delivery')
+              _buildDetailRow('Address Name', order.addressName ?? 'N/A'),
             if (order.notes != null && order.notes!.isNotEmpty)
               _buildDetailRow('Notes', order.notes!),
-            if (order.transactionId != null && order.transactionId!.isNotEmpty)
-              _buildDetailRow('Transaction ID', order.transactionId!),
           ],
         ),
       ),
@@ -274,11 +282,11 @@ class SingleOrderScreen extends StatelessWidget {
             const SizedBox(height: 16),
             _buildDetailRow(
                 'Payment Method', order.paymentMethod?.name ?? 'N/A'),
-            _buildDetailRow('Payment Status', order.paymentStatus ?? 'N/A'),
             const SizedBox(height: 16),
             const Divider(),
             const SizedBox(height: 8),
-            _buildPriceRow('Subtotal', order.amount ?? 0),
+            if (order.deliveryPrice != null)
+              _buildPriceRow('Delivery', order.deliveryPrice!),
             if (order.totalTax != null && order.totalTax! > 0)
               _buildPriceRow('Tax', order.totalTax!),
             if (order.totalDiscount != null && order.totalDiscount! > 0)
@@ -383,17 +391,6 @@ class SingleOrderScreen extends StatelessWidget {
         return Colors.purple;
       default:
         return Colors.grey;
-    }
-  }
-
-  String _formatDate(String? dateString) {
-    if (dateString == null || dateString.isEmpty) return 'N/A';
-
-    try {
-      final parsedDate = DateTime.parse(dateString);
-      return DateFormat('MMM dd, yyyy - hh:mm a').format(parsedDate);
-    } catch (e) {
-      return dateString; // Return original if parsing fails
     }
   }
 }

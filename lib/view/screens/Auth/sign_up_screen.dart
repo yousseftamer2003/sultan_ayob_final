@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:food2go_app/controllers/Auth/forget_password_provider.dart';
 import 'package:food2go_app/view/widgets/show_top_snackbar.dart';
-import 'package:provider/provider.dart'; // Import the provider package
+import 'package:provider/provider.dart';
 import 'package:food2go_app/constants/colors.dart';
 import 'package:food2go_app/view/screens/Auth/login_screen.dart';
+import 'package:country_code_picker/country_code_picker.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -13,7 +14,6 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  // Controllers for the text fields
   final TextEditingController fNameController = TextEditingController();
   final TextEditingController lNameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
@@ -21,9 +21,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confPasswordController = TextEditingController();
 
-  // Separate visibility variables for password and confirm password fields
   bool isPasswordVisible = false;
   bool isConfirmPasswordVisible = false;
+
+  String countryCode = '+20';
 
   bool isLoading = false;
 
@@ -96,9 +97,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           labelText: ' First name',
                           labelStyle: const TextStyle(color: Colors.black45),
                           border: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.circular(20.0), // Rounded corners
-                            borderSide: BorderSide.none, // No border
+                            borderRadius: BorderRadius.circular(20.0),
+                            borderSide: BorderSide.none,
                           ),
                           filled: true,
                           fillColor: const Color(0xFFF7F7F7),
@@ -113,9 +113,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           labelText: ' Last name',
                           labelStyle: const TextStyle(color: Colors.black45),
                           border: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.circular(20.0), // Rounded corners
-                            borderSide: BorderSide.none, // No border
+                            borderRadius: BorderRadius.circular(20.0),
+                            borderSide: BorderSide.none,
                           ),
                           filled: true,
                           fillColor: const Color(0xFFF7F7F7),
@@ -124,21 +123,49 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                       ),
                       const SizedBox(height: 10),
-                      TextField(
-                        controller: phoneController,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          labelText: ' Phone',
-                          labelStyle: const TextStyle(color: Colors.black45),
-                          border: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.circular(20.0), // Rounded corners
-                            borderSide: BorderSide.none, // No border
-                          ),
-                          filled: true,
-                          fillColor: const Color(0xFFF7F7F7),
-                          contentPadding:
-                              const EdgeInsets.symmetric(vertical: 16.0),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF7F7F7),
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                        child: Row(
+                          children: [
+                            CountryCodePicker(
+                              onChanged: (CountryCode code) {
+                                setState(() {
+                                  countryCode = code.dialCode!;
+                                });
+                              },
+                              initialSelection: 'EG',
+                              favorite: const ['EG'],
+                              showCountryOnly: false,
+                              showOnlyCountryWhenClosed: false,
+                              alignLeft: false,
+                              padding: EdgeInsets.zero,
+                              textStyle: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            Container(
+                              height: 30,
+                              width: 1,
+                              color: Colors.grey[300],
+                            ),
+                            Expanded(
+                              child: TextField(
+                                controller: phoneController,
+                                keyboardType: TextInputType.number,
+                                decoration: const InputDecoration(
+                                  labelText: 'Phone number',
+                                  labelStyle: TextStyle(color: Colors.black45),
+                                  border: InputBorder.none,
+                                  contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 16),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       const SizedBox(height: 10),
@@ -149,9 +176,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           labelText: ' Email',
                           labelStyle: const TextStyle(color: Colors.black45),
                           border: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.circular(20.0), // Rounded corners
-                            borderSide: BorderSide.none, // No border
+                            borderRadius: BorderRadius.circular(20.0),
+                            borderSide: BorderSide.none,
                           ),
                           filled: true,
                           fillColor: const Color(0xFFF7F7F7),
@@ -160,7 +186,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                       ),
                       const SizedBox(height: 10),
-                      // Password TextField with visibility toggle
                       TextField(
                         controller: passwordController,
                         obscureText: !isPasswordVisible,
@@ -168,9 +193,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           labelText: ' Password',
                           labelStyle: const TextStyle(color: Colors.black45),
                           border: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.circular(20.0), // Rounded corners
-                            borderSide: BorderSide.none, // No border
+                            borderRadius: BorderRadius.circular(20.0),
+                            borderSide: BorderSide.none,
                           ),
                           filled: true,
                           fillColor: const Color(0xFFF7F7F7),
@@ -191,7 +215,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                       ),
                       const SizedBox(height: 10),
-                      // Confirm Password TextField with visibility toggle
                       TextField(
                         controller: confPasswordController,
                         obscureText: !isConfirmPasswordVisible,
@@ -199,9 +222,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           labelText: ' Confirm Password',
                           labelStyle: const TextStyle(color: Colors.black45),
                           border: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.circular(20.0), // Rounded corners
-                            borderSide: BorderSide.none, // No border
+                            borderRadius: BorderRadius.circular(20.0),
+                            borderSide: BorderSide.none,
                           ),
                           filled: true,
                           fillColor: const Color(0xFFF7F7F7),
@@ -246,12 +268,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                       maincolor,
                                       const Duration(seconds: 4));
                                 } else {
+                                  final fullPhoneNumber =
+                                      '$countryCode${phoneController.text}';
                                   otpServices.signUpUserOTP(
                                     context,
                                     fName: fNameController.text,
                                     lName: lNameController.text,
                                     email: emailController.text,
-                                    phone: phoneController.text,
+                                    phone: fullPhoneNumber,
                                     password: passwordController.text,
                                     confPassword: confPasswordController.text,
                                   );
@@ -300,6 +324,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ),
                         ],
                       ),
+                      const SizedBox(height: 15),
                     ],
                   ),
                 ),

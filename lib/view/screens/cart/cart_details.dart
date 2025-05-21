@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:food2go_app/constants/colors.dart';
 import 'package:food2go_app/controllers/Auth/login_provider.dart';
+import 'package:food2go_app/controllers/address/get_address_provider.dart';
 import 'package:food2go_app/controllers/business_setup_controller.dart';
 import 'package:food2go_app/controllers/product_provider.dart';
 import 'package:food2go_app/controllers/tabs_controller.dart';
@@ -39,6 +40,7 @@ class _CartDetailssScreenState extends State<CartDetailssScreen> {
     final authServices = Provider.of<LoginProvider>(context, listen: false);
     final businessSetupProvider =
         Provider.of<BusinessSetupController>(context, listen: false);
+    final addressProvider = Provider.of<AddressProvider>(context);
     bool isClosed = businessSetupProvider.businessSetup?.openFlag == false;
 
     return WillPopScope(
@@ -84,6 +86,10 @@ class _CartDetailssScreenState extends State<CartDetailssScreen> {
                             totalDiscount += discountAmount;
                           }
                         }
+                        // Calculate final total with delivery fee
+                        double finalTotal = cartProvider.totalPrice +
+                            addressProvider.selectedZonePrice;
+
                         return SingleChildScrollView(
                           child: Column(
                             children: [
@@ -280,9 +286,9 @@ class _CartDetailssScreenState extends State<CartDetailssScreen> {
                                                             ),
                                                             const SizedBox(
                                                                 height: 8),
-                                                            Text(
+                                                            const Text(
                                                               'cc',
-                                                              style: const TextStyle(
+                                                              style: TextStyle(
                                                                   color:
                                                                       maincolor,
                                                                   fontWeight:
@@ -402,6 +408,17 @@ class _CartDetailssScreenState extends State<CartDetailssScreen> {
                                               '${originalTotalPrice - cartProvider.totalPrice} ${S.of(context).Egp}'),
                                         ],
                                       ),
+                                      const SizedBox(height: 12),
+                                      // Add delivery fee row
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(S.of(context).delivery_fee),
+                                          Text(
+                                              '${addressProvider.selectedZonePrice} ${S.of(context).Egp}'),
+                                        ],
+                                      ),
                                       const Divider(thickness: 1),
                                       Row(
                                         mainAxisAlignment:
@@ -412,7 +429,7 @@ class _CartDetailssScreenState extends State<CartDetailssScreen> {
                                                   fontWeight: FontWeight.bold,
                                                   fontSize: 16)),
                                           Text(
-                                              '${cartProvider.totalPrice} ${S.of(context).Egp}',
+                                              '$finalTotal ${S.of(context).Egp}',
                                               style: const TextStyle(
                                                   fontWeight: FontWeight.bold,
                                                   fontSize: 16)),
@@ -457,6 +474,11 @@ class _CartDetailssScreenState extends State<CartDetailssScreen> {
                                                               originalTotalPrice -
                                                                   cartProvider
                                                                       .totalPrice,
+                                                          deliveryFee:
+                                                              addressProvider
+                                                                  .selectedZonePrice,
+                                                          totalPrice:
+                                                              finalTotal,
                                                         )));
                                           },
                                           child: Text(S.of(context).checkout,

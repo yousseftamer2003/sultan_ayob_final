@@ -9,13 +9,13 @@ Widget buildClosedWrap(BuildContext context) {
     decoration: const BoxDecoration(
       color: maincolor,
     ),
-    child: Row(
+    child: const Row(
       children: [
-        const Icon(
+        Icon(
           Icons.lock,
           color: Colors.white,
         ),
-        const Text(
+        Text(
           'we are closed now',
           style: TextStyle(color: Colors.white, fontSize: 20),
         ),

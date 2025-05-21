@@ -17,48 +17,55 @@ class _DeliveryContentState extends State<DeliveryContent> {
   Widget build(BuildContext context) {
     return Consumer<AddressProvider>(
       builder: (context, addressProvider, _) {
-       if(addressProvider.isLoading){
-        return const Center(child: CircularProgressIndicator(color: maincolor,));
-       }else{
-         return Column(
-      children: [
-    ...List.generate(addressProvider.addresses.length, 
-      (index) {
-        final address = addressProvider.addresses[index];
-        return _buildAddressCard(address.zone.zone,address.address, index == selectedAddress,
-        onTap: () {
-          setState(() {
-            if(selectedAddress == index){
-              selectedAddress = null;
-            }else{
-              selectedAddress = index;
-              addressProvider.selectedAddressId = address.id;
-            }
-          });
-        });
+        if (addressProvider.isLoading) {
+          return const Center(
+              child: CircularProgressIndicator(
+            color: maincolor,
+          ));
+        } else {
+          return Column(children: [
+            ...List.generate(
+              addressProvider.addresses.length,
+              (index) {
+                final address = addressProvider.addresses[index];
+                return _buildAddressCard(address.zone.zone, address.address,
+                    index == selectedAddress, onTap: () {
+                  setState(() {
+                    if (selectedAddress == index) {
+                      selectedAddress = null;
+                      addressProvider.selectedAddressId = null;
+                    } else {
+                      selectedAddress = index;
+                      addressProvider.selectedAddressId = address.id;
+                    }
+                  });
+                });
+              },
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => const AddAddressScreen(),
+                      ));
+                    },
+                    child: const Text(
+                      '+ Add new Address',
+                      style: TextStyle(color: maincolor),
+                    )),
+              ],
+            ),
+          ]);
+        }
       },
-      ),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          TextButton(
-              onPressed: (){
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => const AddAddressScreen(),)
-                );
-              }, 
-              child: const Text('+ Add new Address',style: TextStyle(color: maincolor),)),
-        ],
-      ),
-      ]
     );
-       }
-      },
-      );
   }
 }
 
-Widget _buildAddressCard(String title, String subTitle,bool isSelected,{Function()? onTap}) {
+Widget _buildAddressCard(String title, String subTitle, bool isSelected,
+    {Function()? onTap}) {
   return GestureDetector(
     onTap: onTap,
     child: Card(
@@ -78,7 +85,8 @@ Widget _buildAddressCard(String title, String subTitle,bool isSelected,{Function
                 shape: BoxShape.circle,
                 color: maincolor,
               ),
-              child: const Icon(Icons.restaurant_menu, color: Colors.white, size: 35),
+              child: const Icon(Icons.restaurant_menu,
+                  color: Colors.white, size: 35),
             ),
             Expanded(
               child: Column(
@@ -86,15 +94,20 @@ Widget _buildAddressCard(String title, String subTitle,bool isSelected,{Function
                 children: [
                   Text(
                     title,
-                    style: TextStyle(fontWeight: FontWeight.bold,color: isSelected? Colors.white : Colors.black),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: isSelected ? Colors.white : Colors.black),
                   ),
                   const SizedBox(height: 5),
                   Text(
                     subTitle,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: isSelected? Colors.white : Colors.black.withOpacity(0.7)),
-                  ), 
+                    style: TextStyle(
+                        color: isSelected
+                            ? Colors.white
+                            : Colors.black.withOpacity(0.7)),
+                  ),
                 ],
               ),
             ),

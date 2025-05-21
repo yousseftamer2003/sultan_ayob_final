@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:food2go_app/constants/colors.dart';
 import 'package:food2go_app/controllers/address/get_address_provider.dart';
@@ -114,9 +116,17 @@ class _DeliveryOrPickupScreenState extends State<DeliveryOrPickupScreen> {
                         Consumer<AddressProvider>(
                           builder: (context, ap, _) {
                             return ElevatedButton(
-                              onPressed: () {
-                                if (ap.selectedAddressId == null &&
-                                    ap.selectedBranchId == null) {
+                              onPressed: () async {
+                                final addressProvider =
+                                    Provider.of<AddressProvider>(context,
+                                        listen: false);
+                                final businessController =
+                                    Provider.of<BusinessSetupController>(
+                                        context,
+                                        listen: false);
+
+                                if (addressProvider.selectedBranchId == null &&
+                                    addressProvider.selectedAddressId == null) {
                                   showTopSnackBar(
                                     context,
                                     'Please select an address or a branch',
@@ -125,12 +135,41 @@ class _DeliveryOrPickupScreenState extends State<DeliveryOrPickupScreen> {
                                     const Duration(seconds: 2),
                                   );
                                 } else {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (ctx) =>
-                                          const TabsScreen(initialIndex: 0),
-                                    ),
+                                  log('Selected Address ID: ${addressProvider.selectedAddressId}');
+                                  log('Selected Branch ID: ${addressProvider.selectedBranchId}');
+
+                                  if (addressProvider.selectedAddressId !=
+                                      null) {
+                                    addressProvider.selectAddress(
+                                        addressProvider.selectedAddressId!);
+                                  }
+
+                                  log('Selected Zone Price: ${addressProvider.selectedZonePrice}');
+
+                                  await businessController.fetchBusinessSetup(
+                                    context,
+                                    branchId: addressProvider.selectedBranchId,
+                                    addressId:
+                                        addressProvider.selectedAddressId,
                                   );
+
+                                  if (businessController.businessSetup !=
+                                      null) {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (ctx) =>
+                                            const TabsScreen(initialIndex: 0),
+                                      ),
+                                    );
+                                  } else {
+                                    showTopSnackBar(
+                                      context,
+                                      'Failed to fetch business setup',
+                                      Icons.error,
+                                      Colors.red,
+                                      const Duration(seconds: 2),
+                                    );
+                                  }
                                 }
                               },
                               style: ElevatedButton.styleFrom(

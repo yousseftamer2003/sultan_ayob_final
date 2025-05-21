@@ -210,8 +210,6 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                                       target: selectedLocation,
                                       zoom: 14,
                                     );
-
-                                    // Update markers
                                     _markers.clear();
                                     _markers.add(
                                       Marker(
@@ -324,7 +322,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                                         buildingNumController.text.isEmpty ||
                                         floorNumController.text.isEmpty ||
                                         apartmentController.text.isEmpty ||
-                                        selectedZoneId == null ) {
+                                        selectedZoneId == null) {
                                       showTopSnackBar(
                                         context,
                                         'Please fill all the required fields',

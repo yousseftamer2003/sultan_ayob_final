@@ -18,7 +18,6 @@ class _PersonalInfoState extends State<PersonalInfo> {
   @override
   void initState() {
     super.initState();
-    // Fetch user profile when the screen initializes
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<GetProfileProvider>(context, listen: false)
           .fetchUserProfile(context);
@@ -33,7 +32,7 @@ class _PersonalInfoState extends State<PersonalInfo> {
       body: profilesProvider.isLoading
           ? const Center(child: CircularProgressIndicator())
           : profilesProvider.userProfile == null
-              ?  Center(child: Text(S.of(context).failed_to_load))
+              ? Center(child: Text(S.of(context).failed_to_load))
               : Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -82,12 +81,6 @@ class _PersonalInfoState extends State<PersonalInfo> {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              Text(
-                                '${profilesProvider.userProfile!.bio}',
-                                style: const TextStyle(
-                                  color: Colors.grey,
-                                ),
-                              ),
                             ],
                           ),
                         ],
@@ -102,7 +95,9 @@ class _PersonalInfoState extends State<PersonalInfo> {
                           padding: const EdgeInsets.all(16.0),
                           child: Column(
                             children: [
-                              _buildInfoRow(Icons.person, S.of(context).full_name,
+                              _buildInfoRow(
+                                  Icons.person,
+                                  S.of(context).full_name,
                                   '${profilesProvider.userProfile!.fName} ${profilesProvider.userProfile!.lName}'),
                               const SizedBox(
                                 height: 15,
@@ -112,7 +107,9 @@ class _PersonalInfoState extends State<PersonalInfo> {
                               const SizedBox(
                                 height: 15,
                               ),
-                              _buildInfoRow(Icons.phone, S.of(context).phone_number,
+                              _buildInfoRow(
+                                  Icons.phone,
+                                  S.of(context).phone_number,
                                   profilesProvider.userProfile!.phone!),
                               const SizedBox(
                                 height: 15,

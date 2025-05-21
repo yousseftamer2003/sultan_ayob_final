@@ -25,8 +25,8 @@ class _TabsScreenState extends State<TabsScreen> {
   @override
   void initState() {
     super.initState();
-    _currentIndex = widget.initialIndex; // Set the initial index
-    _pageController = PageController(initialPage: _currentIndex); // Initialize PageController with initial index
+    _currentIndex = widget.initialIndex;
+    _pageController = PageController(initialPage: _currentIndex);
   }
 
   @override
@@ -39,7 +39,8 @@ class _TabsScreenState extends State<TabsScreen> {
             child: PageView(
               controller: _pageController,
               onPageChanged: (index) {
-                Provider.of<TabsController>(context, listen: false).setIndex(index);
+                Provider.of<TabsController>(context, listen: false)
+                    .setIndex(index);
                 setState(() {
                   _currentIndex = index;
                 });
@@ -48,7 +49,8 @@ class _TabsScreenState extends State<TabsScreen> {
                 const HomeScreen(),
                 const FavouritesScreen(),
                 CartDetailssScreen(onBack: (int lastIndex) {
-                  Provider.of<TabsController>(context, listen: false).setIndex(lastIndex);
+                  Provider.of<TabsController>(context, listen: false)
+                      .setIndex(lastIndex);
                   _pageController.jumpToPage(lastIndex);
                 }),
                 const PointsItemsScreen(),
@@ -59,7 +61,7 @@ class _TabsScreenState extends State<TabsScreen> {
           Positioned(
             left: 0,
             right: 0,
-            bottom: 20, // This sets the floating effect
+            bottom: 20,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12.0),
               child: ClipRRect(
