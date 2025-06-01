@@ -28,7 +28,7 @@ class _DeliveryContentState extends State<DeliveryContent> {
               addressProvider.addresses.length,
               (index) {
                 final address = addressProvider.addresses[index];
-                return _buildAddressCard(address.zone.zone, address.address,
+                return _buildAddressCard(address.zone!.zone, address.address,
                     index == selectedAddress, onTap: () {
                   setState(() {
                     if (selectedAddress == index) {

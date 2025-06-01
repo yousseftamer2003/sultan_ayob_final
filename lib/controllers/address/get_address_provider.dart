@@ -15,6 +15,7 @@ class AddressProvider with ChangeNotifier {
   List<Address> _addresses = [];
   List<Zone> _zones = [];
   List<BranchStarter> _branchStarters = [];
+  List<City> _cities = []; // Added cities list
 
   bool _isLoading = false;
   String? _errorMessage;
@@ -26,9 +27,15 @@ class AddressProvider with ChangeNotifier {
   List<Address> get addresses => _addresses;
   List<Zone> get zones => _zones;
   List<BranchStarter> get branchStarters => _branchStarters;
+  List<City> get cities => _cities; // Added cities getter
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   double get selectedZonePrice => _selectedZonePrice;
+
+  // Method to get zones filtered by city ID
+  List<Zone> getZonesByCityId(int cityId) {
+    return _zones.where((zone) => zone.cityId == cityId).toList();
+  }
 
   void selectAddress(int addressId) {
     selectedAddressId = addressId;
@@ -73,12 +80,23 @@ class AddressProvider with ChangeNotifier {
             .map<Address>((item) => Address.fromJson(item))
             .toList();
 
-        _zones = (data['zones'] ?? [])
-            .map<Zone>((item) => Zone.fromJson(item))
-            .toList();
+        // Create zones with unique IDs based on index
+        List<dynamic> zonesData = data['zones'] ?? [];
+        _zones = zonesData.asMap().entries.map((entry) {
+          Map<String, dynamic> zoneJson =
+              Map<String, dynamic>.from(entry.value);
+          // Ensure each zone has a unique ID
+          zoneJson['id'] = entry.key + 1; // Start from 1
+          return Zone.fromJson(zoneJson);
+        }).toList();
 
         _branchStarters = (data['branches'] ?? [])
             .map<BranchStarter>((item) => BranchStarter.fromJson(item))
+            .toList();
+
+        // Added cities parsing
+        _cities = (data['cities'] ?? [])
+            .map<City>((item) => City.fromJson(item))
             .toList();
 
         _errorMessage = null;
@@ -95,7 +113,6 @@ class AddressProvider with ChangeNotifier {
     }
   }
 
-  /// Clear selected address (optional: call on logout)
   void clearSelectedAddress() {
     selectedAddressId = null;
     _selectedZonePrice = 0.0;
@@ -104,6 +121,7 @@ class AddressProvider with ChangeNotifier {
 
   Future<void> addAddress({
     required BuildContext context,
+    required int cityId,
     required int zoneId,
     required String mapLink,
     required String address,
@@ -129,6 +147,7 @@ class AddressProvider with ChangeNotifier {
           'Content-Type': 'application/json',
         },
         body: json.encode({
+          'city_id': cityId,
           'zone_id': zoneId,
           'address': address,
           'street': street,
