@@ -33,7 +33,6 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
   late GooglePlace googlePlace;
   List<AutocompletePrediction> predictions = [];
   late CameraPosition _currentCameraPosition;
-
   final TextEditingController addressController = TextEditingController();
   final TextEditingController streetController = TextEditingController();
   final TextEditingController buildingNumController = TextEditingController();
@@ -41,13 +40,11 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
   final TextEditingController apartmentController = TextEditingController();
   final TextEditingController additionalDataController =
       TextEditingController();
-
-  // Zone search functionality
   final TextEditingController zoneSearchController = TextEditingController();
   bool _showZoneDropdown = false;
   String? selectedZoneName;
 
-  String? selectedCityId; // Added city selection
+  String? selectedCityId; 
   String? selectedZoneId;
 
   @override
@@ -60,7 +57,6 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
       zoom: 14,
     );
 
-    // Add listener to hide dropdown when tapping outside
     zoneSearchController.addListener(() {
       if (zoneSearchController.text.isEmpty) {
         setState(() {
@@ -140,7 +136,6 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
       Placemark place = placemarks[0];
       String address =
           '${place.street}, ${place.subLocality}, ${place.locality}, ${place.country}';
-
       setState(() {
         addressController.text = address;
         mapLink =
@@ -160,7 +155,6 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
         final lat = location.lat ?? 0.0;
         final lng = location.lng ?? 0.0;
         LatLng selectedLatLng = LatLng(lat, lng);
-
         _mapController?.animateCamera(CameraUpdate.newLatLng(selectedLatLng));
         setState(() {
           _markers.add(
@@ -171,7 +165,6 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
             ),
           );
         });
-
         await _getAddressFromLatLng(selectedLatLng);
       }
     }
@@ -184,7 +177,6 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
       appBar: buildAppBar(context, S.of(context).add_address),
       body: GestureDetector(
         onTap: () {
-          // Hide zone dropdown when tapping outside
           setState(() {
             _showZoneDropdown = false;
           });
@@ -241,7 +233,6 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                                       ),
                                     ),
                                   );
-
                                   if (result != null) {
                                     final selectedLocation =
                                         result['location'] as LatLng;
@@ -249,7 +240,6 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                                         result['address'] as String;
 
                                     setState(() {
-                                      // Update camera position
                                       _currentCameraPosition = CameraPosition(
                                         target: selectedLocation,
                                         zoom: 14,
@@ -267,8 +257,6 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
 
                                       addressController.text = selectedAddress;
                                     });
-
-                                    // Animate the map to the new location
                                     _mapController!.animateCamera(
                                       CameraUpdate.newCameraPosition(
                                           _currentCameraPosition),
@@ -285,14 +273,12 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                           decoration: InputDecoration(
                             hintText: S.of(context).selected_address,
                             filled: true,
-                            fillColor: Colors.grey.shade100, // Background color
+                            fillColor: Colors.grey.shade100,
                             contentPadding: const EdgeInsets.symmetric(
                                 horizontal: 20, vertical: 16),
                             border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.circular(30), // Rounded corners
-                              borderSide:
-                                  BorderSide.none, // Removes the outline border
+                              borderRadius: BorderRadius.circular(30),
+                              borderSide: BorderSide.none,
                             ),
                           ),
                           readOnly: true,

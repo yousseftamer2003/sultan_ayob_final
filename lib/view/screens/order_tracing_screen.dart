@@ -16,10 +16,10 @@ class OrderTrackingScreen extends StatelessWidget {
   final int? deliveryManId;
 
   const OrderTrackingScreen({
-    Key? key,
+    super.key,
     required this.orderId,
     this.deliveryManId,
-  }) : super(key: key);
+  });
 
   Future<Map<String, dynamic>> fetchOrderDetails(BuildContext context) async {
     try {
@@ -520,10 +520,10 @@ class CustomDashedLine extends StatelessWidget {
   final double height;
 
   const CustomDashedLine({
-    Key? key,
+    super.key,
     required this.isActive,
     this.height = 40,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

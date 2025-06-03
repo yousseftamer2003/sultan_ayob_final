@@ -97,7 +97,7 @@ class _AddressScreenState extends State<AddressScreen> {
                                     icon: Icons.home,
                                     title: address.type,
                                     address:
-                                        '${address.zone?.zone}, ${address.address}, ${address.street}, ${address.buildingNum}',
+                                        '${address.zone.zone}, ${address.address}, ${address.street}, ${address.buildingNum}',
                                     addressId: address.id,
                                   ),
                                 );
