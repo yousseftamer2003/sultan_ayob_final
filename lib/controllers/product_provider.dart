@@ -70,7 +70,6 @@ class ProductProvider with ChangeNotifier {
     notifyListeners();
   }
 
-
   Future<void> fetchProducts(BuildContext context,
       {int? userId, int? branchId, int? addressId}) async {
     try {
@@ -112,7 +111,6 @@ class ProductProvider with ChangeNotifier {
       log('Error in fetch products: $e');
     }
   }
-
 
   Future<void> postCart(BuildContext context,
       {required List<Product> products,
@@ -338,23 +336,73 @@ class ProductProvider with ChangeNotifier {
   }
 
   void increaseProductQuantity(Product product) {
-    double defaultPrice = product.price / product.quantity;
+    double unitPrice = _calculateUnitPrice(product);
+
     product.quantity++;
-    product.price = defaultPrice * product.quantity;
+    product.price = unitPrice * product.quantity;
+
     saveCart();
     notifyListeners();
   }
 
   void decreaseProductQuantity(Product product) {
     if (product.quantity > 1) {
-      double defaultPrice = product.price / product.quantity;
+      double unitPrice = _calculateUnitPrice(product);
 
       product.quantity--;
-      product.price = defaultPrice * product.quantity;
+      product.price = unitPrice * product.quantity;
 
       saveCart();
       notifyListeners();
     }
+  }
+
+  double _calculateUnitPrice(Product product) {
+    double basePrice = _getBaseProductPrice(product.id);
+
+    double variationPrice = 0;
+    for (Variation variation in product.variations) {
+      for (Option option in variation.options) {
+        variationPrice += option.price;
+      }
+    }
+
+    double addonPrice = 0;
+    for (AddOns addon in product.addons) {
+      addonPrice += addon.price * addon.selectedQuantity;
+    }
+
+    return basePrice + variationPrice + addonPrice;
+  }
+
+  double _getBaseProductPrice(int productId) {
+    Product? originalProduct = _products.firstWhere((p) => p.id == productId,
+        orElse: () => Product(
+            name: '',
+            id: 0,
+            description: '',
+            image: '',
+            categoryId: 0,
+            subCategoryId: '',
+            productTimeStatus: '',
+            from: '',
+            to: '',
+            numOfStock: 0,
+            status: 0,
+            reccomended: 0,
+            inStock: false,
+            isFav: false,
+            price: 0.0,
+            discountId: '',
+            taxId: '',
+            excludes: [],
+            extra: [],
+            variations: [],
+            discount: Discount(name: '', amount: 0.0, type: '', id: 0),
+            addons: [],
+            tax: Tax(name: '', amount: 0.0, type: '', id: 0)));
+
+    return originalProduct.price;
   }
 
   void increaseExtraQuantity(int index, int extraIndex) {
@@ -466,9 +514,152 @@ class ProductProvider with ChangeNotifier {
   }
 
   Future<void> addToCart(Product product) async {
-    _cart.add(product);
+    int existingIndex = _findExistingProductIndex(product);
+
+    if (existingIndex != -1) {
+      _cart[existingIndex].quantity += product.quantity;
+
+      double unitPrice = _cart[existingIndex].price /
+          (_cart[existingIndex].quantity - product.quantity);
+      _cart[existingIndex].price = unitPrice * _cart[existingIndex].quantity;
+
+      for (int i = 0; i < _cart[existingIndex].addons.length; i++) {
+        if (i < product.addons.length) {
+          _cart[existingIndex].addons[i].selectedQuantity +=
+              product.addons[i].selectedQuantity;
+        }
+      }
+    } else {
+      _cart.add(product);
+    }
+
     await saveCart();
     notifyListeners();
+  }
+
+  int _findExistingProductIndex(Product newProduct) {
+    for (int i = 0; i < _cart.length; i++) {
+      Product existingProduct = _cart[i];
+
+      if (existingProduct.id == newProduct.id) {
+        if (_isSameConfiguration(existingProduct, newProduct)) {
+          return i;
+        }
+      }
+    }
+    return -1;
+  }
+
+  bool _isSameConfiguration(Product existing, Product newProduct) {
+    if (!_compareExcludes(existing.excludes, newProduct.excludes)) {
+      return false;
+    }
+
+    if (!_compareExtras(existing.extra, newProduct.extra)) {
+      return false;
+    }
+
+    if (!_compareVariations(existing.variations, newProduct.variations)) {
+      return false;
+    }
+
+    if (!_compareAddons(existing.addons, newProduct.addons)) {
+      return false; 
+    }
+
+    return true;
+  }
+
+  bool _compareExcludes(List<Excludes> list1, List<Excludes> list2) {
+    if (list1.length != list2.length) return false;
+
+    List<int> ids1 = list1.map((e) => e.id).toList()..sort();
+    List<int> ids2 = list2.map((e) => e.id).toList()..sort();
+
+    for (int i = 0; i < ids1.length; i++) {
+      if (ids1[i] != ids2[i]) return false;
+    }
+    return true;
+  }
+
+  bool _compareExtras(List<Extra> list1, List<Extra> list2) {
+    if (list1.length != list2.length) return false;
+
+    List<int> ids1 = list1.map((e) => e.id).toList()..sort();
+    List<int> ids2 = list2.map((e) => e.id).toList()..sort();
+
+    for (int i = 0; i < ids1.length; i++) {
+      if (ids1[i] != ids2[i]) return false;
+    }
+
+    for (Extra extra1 in list1) {
+      Extra? extra2 = list2.firstWhere((e) => e.id == extra1.id,
+          orElse: () => Extra(name: '', id: -1, productId: -1));
+      if (extra2.id == -1 || extra1.extraQuantity != extra2.extraQuantity) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  bool _compareVariations(List<Variation> list1, List<Variation> list2) {
+    if (list1.length != list2.length) return false;
+
+    List<int> variationIds1 = list1.map((v) => v.id).toList()..sort();
+    List<int> variationIds2 = list2.map((v) => v.id).toList()..sort();
+
+    for (int i = 0; i < variationIds1.length; i++) {
+      if (variationIds1[i] != variationIds2[i]) return false;
+    }
+
+    for (Variation variation1 in list1) {
+      Variation? variation2 = list2.firstWhere((v) => v.id == variation1.id,
+          orElse: () => Variation(
+              id: -1,
+              name: '',
+              type: '',
+              required: 0,
+              productId: 0,
+              points: 0,
+              options: []));
+      if (variation2.id == -1) return false;
+
+      if (variation1.options.length != variation2.options.length) return false;
+
+      List<int> optionIds1 = variation1.options.map((o) => o.id).toList()
+        ..sort();
+      List<int> optionIds2 = variation2.options.map((o) => o.id).toList()
+        ..sort();
+
+      for (int i = 0; i < optionIds1.length; i++) {
+        if (optionIds1[i] != optionIds2[i]) return false;
+      }
+    }
+
+    return true;
+  }
+
+  bool _compareAddons(List<AddOns> list1, List<AddOns> list2) {
+    if (list1.length != list2.length) return false;
+
+    List<int> ids1 = list1.map((a) => a.id).toList()..sort();
+    List<int> ids2 = list2.map((a) => a.id).toList()..sort();
+
+    for (int i = 0; i < ids1.length; i++) {
+      if (ids1[i] != ids2[i]) return false;
+    }
+
+    for (AddOns addon1 in list1) {
+      AddOns? addon2 = list2.firstWhere((a) => a.id == addon1.id,
+          orElse: () => AddOns(name: '', price: 0.0, quantityAdd: 0, id: -1));
+      if (addon2.id == -1 ||
+          addon1.selectedQuantity != addon2.selectedQuantity) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   Future<void> removeFromCart(int index) async {

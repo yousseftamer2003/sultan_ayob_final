@@ -30,7 +30,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   List<Variation> selectedVariations = [];
   List<AddOns> addons = [];
   int minVar = 0;
-  Map<int,String> checkRequired = {};
+  Map<int, String> checkRequired = {};
 
   @override
   void initState() {
@@ -63,20 +63,20 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   }
 
   bool canProceedToCart() {
-  List<int> selectedVariationsId = selectedVariations.map((variation) => variation.id).toList();
+    List<int> selectedVariationsId =
+        selectedVariations.map((variation) => variation.id).toList();
 
-  for (var entry in checkRequired.entries) {
-    final variationId = entry.key;
-    final isRequired = entry.value == 'required'; 
+    for (var entry in checkRequired.entries) {
+      final variationId = entry.key;
+      final isRequired = entry.value == 'required';
 
-    if (isRequired && !selectedVariationsId.contains(variationId)) {
-      return false;
+      if (isRequired && !selectedVariationsId.contains(variationId)) {
+        return false;
+      }
     }
+
+    return true;
   }
-
-  return true;
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -119,7 +119,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         ),
                         IconButton(
                           icon: Icon(
-                            isFavorited ? Icons.favorite : Icons.favorite_border,
+                            isFavorited
+                                ? Icons.favorite
+                                : Icons.favorite_border,
                             color: isFavorited ? maincolor : Colors.white,
                           ),
                           onPressed: () {
@@ -168,7 +170,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                               fontWeight: FontWeight.bold,
                             ),
                             maxLines: 2, // Limit to 2 lines
-                            overflow: TextOverflow.ellipsis, // Show ellipsis if text exceeds 2 lines
+                            overflow: TextOverflow
+                                .ellipsis, // Show ellipsis if text exceeds 2 lines
                             softWrap: true, // Allow wrapping to the next line
                           ),
                         ),
@@ -189,8 +192,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       widget.product!.variations.length,
                       (index) {
                         final variation = widget.product!.variations[index];
-                        final isMultipleSelection = variation.type == 'multiple';
-                        checkRequired[variation.id] = variation.required == 1? 'required' : 'not required';
+                        final isMultipleSelection =
+                            variation.type == 'multiple';
+                        checkRequired[variation.id] = variation.required == 1
+                            ? 'required'
+                            : 'not required';
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -213,45 +219,80 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                           if (isMultipleSelection) {
                                             int max = variation.max ?? 0;
                                             minVar = variation.min ?? 0;
-                                            if (selectedOptions.contains(option.name)) {
-                                              selectedOptions.remove(option.name);
-                                              selectedOptionsObject.remove(option);
-                                              widget.product!.price -= option.price * quantity;
+                                            if (selectedOptions
+                                                .contains(option.name)) {
+                                              selectedOptions
+                                                  .remove(option.name);
+                                              selectedOptionsObject
+                                                  .remove(option);
+                                              widget.product!.price -=
+                                                  option.price * quantity;
                                               defaultPrice -= option.price;
                                             } else {
-                                              if(selectedOptions.length < max || max == 0){
-                                                selectedOptions.add(option.name);
-                                              selectedOptionsObject.add(option);
-                                              selectedVariations.add(variation);
-                                              widget.product!.price += option.price * quantity;
-                                              defaultPrice += option.price;
-                                              }else{
-                                                showTopSnackBar(context, 'You can not select more than $max options', Icons.warning_outlined, maincolor, const Duration(seconds: 3));
+                                              if (selectedOptions.length <
+                                                      max ||
+                                                  max == 0) {
+                                                selectedOptions
+                                                    .add(option.name);
+                                                selectedOptionsObject
+                                                    .add(option);
+                                                selectedVariations
+                                                    .add(variation);
+                                                widget.product!.price +=
+                                                    option.price * quantity;
+                                                defaultPrice += option.price;
+                                              } else {
+                                                showTopSnackBar(
+                                                    context,
+                                                    'You can not select more than $max options',
+                                                    Icons.warning_outlined,
+                                                    maincolor,
+                                                    const Duration(seconds: 3));
                                               }
                                             }
                                           } else {
-                                            final previousSelection = selectedOptionsPerVariation[variation.name];
-                                            if (previousSelection == option.name) {
-                                              selectedOptionsPerVariation[variation.name] = null;
-                                              selectedOptionsObject.remove(option);
-                                              widget.product!.price -= option.price * quantity;
+                                            final previousSelection =
+                                                selectedOptionsPerVariation[
+                                                    variation.name];
+                                            if (previousSelection ==
+                                                option.name) {
+                                              selectedOptionsPerVariation[
+                                                  variation.name] = null;
+                                              selectedOptionsObject
+                                                  .remove(option);
+                                              widget.product!.price -=
+                                                  option.price * quantity;
                                               defaultPrice -= option.price;
                                             } else {
-                                              if (previousSelection  != null) {
-                                                Option? previousOption = variation.options.any((opt) => opt.name == previousSelection )
-                                                ? variation.options.firstWhere((opt) => opt.name == previousSelection )
-                                                : null;
+                                              if (previousSelection != null) {
+                                                Option? previousOption = variation
+                                                        .options
+                                                        .any((opt) =>
+                                                            opt.name ==
+                                                            previousSelection)
+                                                    ? variation.options
+                                                        .firstWhere((opt) =>
+                                                            opt.name ==
+                                                            previousSelection)
+                                                    : null;
                                                 if (previousOption != null) {
-                                                  widget.product!.price -= previousOption.price * quantity;
-                                                  defaultPrice -= previousOption.price;
-                                                  selectedOptionsObject.remove(previousOption);
-                                                  selectedVariations.remove(variation);
+                                                  widget.product!.price -=
+                                                      previousOption.price *
+                                                          quantity;
+                                                  defaultPrice -=
+                                                      previousOption.price;
+                                                  selectedOptionsObject
+                                                      .remove(previousOption);
+                                                  selectedVariations
+                                                      .remove(variation);
                                                 }
                                               }
                                               selectedOptionsObject.add(option);
                                               selectedVariations.add(variation);
-                                              selectedOptionsPerVariation[variation.name] = option.name;
-                                              widget.product!.price += option.price * quantity;
+                                              selectedOptionsPerVariation[
+                                                  variation.name] = option.name;
+                                              widget.product!.price +=
+                                                  option.price * quantity;
                                               defaultPrice += option.price;
                                             }
                                           }
@@ -259,8 +300,12 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                       },
                                       child: SizeOption(
                                         text: option.name,
-                                        isSelected: isMultipleSelection? selectedOptions.contains(option.name)
-                                            : selectedOptionsPerVariation[variation.name] == option.name,
+                                        isSelected: isMultipleSelection
+                                            ? selectedOptions
+                                                .contains(option.name)
+                                            : selectedOptionsPerVariation[
+                                                    variation.name] ==
+                                                option.name,
                                       ),
                                     );
                                   },
@@ -324,7 +369,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       ],
                     ),
                     const SizedBox(height: 8),
-                    Text(widget.product!.description == 'null'? 'No description': widget.product!.description),
+                    Text(widget.product!.description == 'null'
+                        ? 'No description'
+                        : widget.product!.description),
                     const SizedBox(height: 8),
                     AddonSelectionWidget(
                       product: widget.product!,
@@ -365,27 +412,70 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                               onPressed: () {
                                 bool variationValidity = canProceedToCart();
                                 if (!variationValidity) {
-                                  showTopSnackBar(context, 'you have to select all required options', Icons.warning_outlined, maincolor, const Duration(seconds: 3));
+                                  showTopSnackBar(
+                                      context,
+                                      'you have to select all required options',
+                                      Icons.warning_outlined,
+                                      maincolor,
+                                      const Duration(seconds: 3));
                                   return;
                                 }
-                                if(minVar > selectedOptions.length){
-                                  showTopSnackBar(context, 'you have to select at least $minVar options', Icons.warning_outlined, maincolor,const Duration(seconds: 3));
+                                if (minVar > selectedOptions.length) {
+                                  showTopSnackBar(
+                                      context,
+                                      'you have to select at least $minVar options',
+                                      Icons.warning_outlined,
+                                      maincolor,
+                                      const Duration(seconds: 3));
                                   return;
                                 }
-                                if(loginProvider.token == null){
-                                  showTopSnackBar(context, 'You have to login first', Icons.warning_outlined, maincolor, const Duration(seconds: 3));
+                                if (loginProvider.token == null) {
+                                  showTopSnackBar(
+                                      context,
+                                      'You have to login first',
+                                      Icons.warning_outlined,
+                                      maincolor,
+                                      const Duration(seconds: 3));
                                   return;
                                 }
-                                Product selectedProduct = widget.product!;
-                                selectedProduct.addons = addons;
-                                selectedProduct.extra = selectedExtrasList;
-                                for (var e in selectedVariations) {
-                                  e.options = selectedOptionsObject.where((option) => option.variationId == e.id).toList();
+
+                                Product selectedProduct = Product(
+                                  name: widget.product!.name,
+                                  id: widget.product!.id,
+                                  description: widget.product!.description,
+                                  image: widget.product!.image,
+                                  categoryId: widget.product!.categoryId,
+                                  subCategoryId: widget.product!.subCategoryId,
+                                  productTimeStatus:
+                                      widget.product!.productTimeStatus,
+                                  from: widget.product!.from,
+                                  to: widget.product!.to,
+                                  numOfStock: widget.product!.numOfStock,
+                                  status: widget.product!.status,
+                                  reccomended: widget.product!.reccomended,
+                                  inStock: widget.product!.inStock,
+                                  isFav: widget.product!.isFav,
+                                  price: widget.product!.price,
+                                  discountId: widget.product!.discountId,
+                                  taxId: widget.product!.taxId,
+                                  excludes: selectedExcludesList,
+                                  extra: selectedExtrasList,
+                                  variations: selectedVariations,
+                                  discount: widget.product!.discount,
+                                  addons: addons,
+                                  tax: widget.product!.tax,
+                                  quantity: quantity,
+                                );
+
+                                for (var variation in selectedVariations) {
+                                  variation.options = selectedOptionsObject
+                                      .where((option) =>
+                                          option.variationId == variation.id)
+                                      .toList();
                                 }
-                                selectedProduct.variations = selectedVariations;
-                                selectedProduct.excludes = selectedExcludesList;
+
                                 productProvider.addToCart(selectedProduct);
-                                // Show Dialog
+
                                 showDialog(
                                   context: context,
                                   builder: (ctx) {
@@ -399,11 +489,16 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                             Navigator.pushReplacement(
                                               context,
                                               MaterialPageRoute(
-                                                builder: (context) =>const TabsScreen(initialIndex: 0,),
+                                                builder: (context) =>
+                                                    const TabsScreen(
+                                                  initialIndex: 0,
+                                                ),
                                               ),
                                             );
                                           },
-                                          child: const Text('Continue',style: TextStyle(color: maincolor)),
+                                          child: const Text('Continue',
+                                              style:
+                                                  TextStyle(color: maincolor)),
                                         ),
                                         ElevatedButton(
                                           onPressed: () {
@@ -411,14 +506,16 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                             Navigator.pushReplacement(
                                               context,
                                               MaterialPageRoute(
-                                                builder: (context) =>const TabsScreen(initialIndex: 2,),
+                                                builder: (context) =>
+                                                    const TabsScreen(
+                                                  initialIndex: 2,
+                                                ),
                                               ),
                                             );
                                           },
                                           style: ElevatedButton.styleFrom(
-                                            backgroundColor: maincolor,
-                                            foregroundColor: Colors.white
-                                          ),
+                                              backgroundColor: maincolor,
+                                              foregroundColor: Colors.white),
                                           child: const Text('CheckOut'),
                                         ),
                                       ],
@@ -433,8 +530,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                               ),
                               child: const Text(
                                 "Add to Cart",
-                                style:
-                                    TextStyle(fontSize: 16, color: Colors.white),
+                                style: TextStyle(
+                                    fontSize: 16, color: Colors.white),
                               ),
                             );
                           },
