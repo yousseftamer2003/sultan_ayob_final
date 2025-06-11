@@ -267,7 +267,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                       Icons.warning_outlined,
                                       maincolor,
                                       const Duration(seconds: 4));
-                                } else {
+                                }else if (phoneController.text.length < 10) {
+                                  showTopSnackBar(
+                                      context,
+                                      'Please enter a valid phone number',
+                                      Icons.warning_outlined,
+                                      maincolor,
+                                      const Duration(seconds: 3));
+                                }
+                                 else {
                                   final fullPhoneNumber =
                                       '$countryCode${phoneController.text}';
                                   otpServices.signUpUserOTP(

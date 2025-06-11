@@ -7,6 +7,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:food2go_app/controllers/Auth/login_provider.dart';
 import 'package:food2go_app/controllers/address/get_address_provider.dart';
 import 'package:food2go_app/controllers/business_setup_controller.dart';
+import 'package:food2go_app/controllers/lang_services_controller.dart';
 import 'package:food2go_app/controllers/notification_controller.dart';
 import 'package:food2go_app/generated/l10n.dart';
 import 'package:food2go_app/view/screens/categories/screens/categories_screen.dart';
@@ -447,13 +448,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildDealsSection() {
+    final langServices = Provider.of<LangServices>(context);
     return GestureDetector(
       onTap: () {
         Navigator.of(context)
             .push(MaterialPageRoute(builder: (ctx) => const DealsScreen()));
       },
       child: SizedBox(
-        height: 100,
+        height: 105,
         child: Stack(
           children: [
             Positioned(
@@ -466,15 +468,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   borderRadius: BorderRadius.circular(16),
                   color: maincolor,
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    SizedBox(
+                    const SizedBox(
                       width: 10,
                     ),
                     Text(
-                      'Deals',
-                      style: TextStyle(
+                      S.of(context).deals,
+                      style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                           color: Colors.white),
@@ -484,7 +486,8 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             Positioned(
-              right: -10,
+              right: langServices.selectedLang == 'en' ? -10 : null,
+              left: langServices.selectedLang == 'ar' ? -17 : null,
               bottom: 4,
               child: Image.asset('assets/images/sultan.png'),
             ),
